@@ -128,7 +128,6 @@ unless you keep it re-sorted.
 
 ## Series
 
-Part of the **Algorithms in C++** repository — 31 algorithms across
-searching, sorting, data structures, trees, graphs, greedy techniques,
-dynamic programming, and more, each in its own self-contained folder with
-tests. See the repository root `README.md` for the full index.
+Part of the **Algorithms in C++** repository — 31 algorithms released one
+lesson at a time, each in its own self-contained folder with tests. The
+repository root `README.md` tracks the published lessons as they land.
