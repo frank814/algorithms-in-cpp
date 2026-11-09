@@ -1,14 +1,4 @@
-# 04 · Quicksort
-
-In-place sort that partitions the list around a pivot and recurses on both sides — O(n log n) expected.
-
-## How it works
-
-- Pick the pivot as the median of the first, middle, and last elements (keeps splits balanced).
-- Partition: walk two indices inward from both ends, swapping values that sit on the wrong side.
-- Recurse on both halves; small ranges finish with insertion sort.
-
-## Run
+# 04 · Quicksort — Run
 
 ```bash
 g++ -std=c++17 -O2 -Wall -Wextra -o quicksort quicksort.cpp
