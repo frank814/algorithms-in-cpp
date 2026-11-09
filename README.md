@@ -1,38 +1,17 @@
 # Algorithms in C++
 
-Classic algorithms implemented from scratch in **C++17**, each in its own
-self-contained folder: one source file containing the implementation, a real
-`assert()` test suite, and a deterministic demo. Standard library only —
-zero dependencies.
-
-The code and explanations are original: written from our own understanding
-of how and why each algorithm works, with the tough cases (duplicates, empty
-inputs, degenerate structures, numerical edge cases) handled on purpose.
-
----
+Classic algorithms implemented from scratch in **C++17** — one folder per algorithm: a single source file with its tests, plus a short write-up. Standard library only, zero dependencies.
 
 ## Lessons
 
 | # | Algorithm | Lesson |
 |---|---|---|
-| 1 | Binary search (+ lower/upper bound) | [`01-binary-search`](01-binary-search/) |
+| 1 | Binary search | [`01-binary-search`](01-binary-search/) |
 | 2 | Selection sort | [`02-selection-sort`](02-selection-sort/) |
-| 3 | Recursion — factorial, memoized Fibonacci, call traces | [`03-recursion`](03-recursion/) |
-| 4 | Quicksort (median-of-three, in-place) | [`04-quicksort`](04-quicksort/) |
+| 3 | Recursion | [`03-recursion`](03-recursion/) |
+| 4 | Quicksort | [`04-quicksort`](04-quicksort/) |
 
----
-
-## Layout of a lesson
-
-```
-NN-algorithm-name/
-├── README.md            ← the write-up (idea, complexity, real output, tests)
-└── algorithm_name.cpp   ← implementation + test suite + demo in one file
-```
-
----
-
-## Build and run
+## Run a lesson
 
 ```bash
 cd 01-binary-search
@@ -40,7 +19,7 @@ g++ -std=c++17 -O2 -Wall -Wextra -o binary_search binary_search.cpp
 ./binary_search
 ```
 
-## Verify every lesson
+## Verify everything
 
 ```bash
 for d in */; do
@@ -51,23 +30,3 @@ for d in */; do
     && echo "PASS ${d%/}" || echo "FAIL ${d%/}"
 done
 ```
-
-Expected: `PASS` for every folder that contains code (folders holding only a
-write-up are skipped).
-
----
-
-## Testing philosophy
-
-Every file ships with its tests (they run on every execution — a regression
-fails loudly before any output):
-
-- **Edge cases first** — empty inputs, single elements, duplicates, missing
-  values, all-equal data, out-of-range targets.
-- **Cross-validation** — wherever a fast algorithm has a trivial slow
-  counterpart (sorting vs `std::sort`, knapsack vs 2ⁿ enumeration, FFT vs
-  DFT), the fast path is checked against it on fixed-seed randomized inputs.
-- **Determinism** — all randomness uses fixed seeds; demo output is identical
-  on every machine.
-- **Invariants** — structural properties are asserted directly (balance
-  factors, tree fill bounds, prefix-freeness, zero false negatives).
