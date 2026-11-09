@@ -20,11 +20,19 @@ Sorts a list in place by repeatedly picking the smallest remaining value.
 - Each pass scans for the minimum and swaps it into the next open slot.
 - After n passes the list is sorted.
 
+### Recursion — `recursion.cpp`
+
+A function solves smaller copies of the same problem until a base case answers directly.
+
+- Each waiting call sits on the call stack until the deepest one returns, then the frames unwind.
+- Factorial guards against 64-bit overflow (`n > 20` → `0`).
+- Fibonacci with a memo cache computes every value once instead of redoing work.
+
 ## Run
 
 ```bash
-g++ -std=c++17 -O2 -Wall -Wextra -o selection_sort selection_sort.cpp
-./selection_sort
+g++ -std=c++17 -O2 -Wall -Wextra -o recursion recursion.cpp
+./recursion
 ```
 
 ## Verify every file
