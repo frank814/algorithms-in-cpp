@@ -16,6 +16,9 @@ inputs, degenerate structures, numerical edge cases) handled on purpose.
 | # | Algorithm | Lesson |
 |---|---|---|
 | 1 | Binary search (+ lower/upper bound) | [`01-binary-search`](01-binary-search/) |
+| 2 | Selection sort | [`02-selection-sort`](02-selection-sort/) |
+| 3 | Recursion — factorial, memoized Fibonacci, call traces | [`03-recursion`](03-recursion/) |
+| 4 | Quicksort (median-of-three, in-place) | [`04-quicksort`](04-quicksort/) |
 
 ---
 
@@ -41,14 +44,16 @@ g++ -std=c++17 -O2 -Wall -Wextra -o binary_search binary_search.cpp
 
 ```bash
 for d in */; do
-  src=$(ls "$d"*.cpp)
+  src=$(ls "$d"*.cpp 2>/dev/null) || continue
+  [ -z "$src" ] && continue
   g++ -std=c++17 -O2 -Wall -Wextra -o /tmp/alg "$src" \
     && /tmp/alg > /dev/null \
     && echo "PASS ${d%/}" || echo "FAIL ${d%/}"
 done
 ```
 
-Expected: `PASS` for every folder.
+Expected: `PASS` for every folder that contains code (folders holding only a
+write-up are skipped).
 
 ---
 
