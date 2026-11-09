@@ -2,6 +2,8 @@
 
 Algorithms in C++, built from scratch and tested — learning algorithms by building them.
 
+All you need is a C++ compiler (g++, clang++, or MSVC) — no libraries, no setup.
+
 ## Files
 
 ### Binary Search
