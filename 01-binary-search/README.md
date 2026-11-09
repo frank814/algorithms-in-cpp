@@ -1,15 +1,4 @@
-# 01 · Binary Search
-
-Finds a target in a **sorted** list by cutting the search range in half on every step — O(log n).
-
-## How it works
-
-- Check the middle of the range.
-- Match → return the index. Too small → keep the right half. Too big → keep the left half.
-- Range empty → not found (`-1`).
-- The file also includes `lower_bound_idx` / `upper_bound_idx` for duplicated values (first position, and just past the last).
-
-## Run
+# 01 · Binary Search — Run
 
 ```bash
 g++ -std=c++17 -O2 -Wall -Wextra -o binary_search binary_search.cpp
