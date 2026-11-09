@@ -1,6 +1,6 @@
 # Algorithms in C++
 
-Algorithms in C++, built from scratch and tested — learning algorithms by building them.
+Every algorithm here is written from scratch and tested — built for learning how they actually work.
 
 All you need is a C++ compiler (g++, clang++, or MSVC) — no libraries, no setup.
 
@@ -50,6 +50,15 @@ One example — the same two commands run any file in this repo:
 g++ -std=c++17 -O2 -Wall -Wextra -o run quicksort.cpp && ./run
 ```
 
+What you should see:
+
+```
+All quicksort tests passed.
+
+before: 9 -3 4 4 0 7 -3 12 1 1 5 8 2 6 11 3 10 0 -7 13
+after:  -7 -3 -3 0 0 1 1 2 3 4 4 5 6 7 8 9 10 11 12 13
+```
+
 Or run every file in one go:
 
 ```bash
@@ -58,4 +67,13 @@ for f in *.cpp; do
     && /tmp/alg > /dev/null \
     && echo "PASS $f" || echo "FAIL $f"
 done
+```
+
+Which prints:
+
+```
+PASS binary_search.cpp
+PASS quicksort.cpp
+PASS recursion.cpp
+PASS selection_sort.cpp
 ```
