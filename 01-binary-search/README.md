@@ -1,6 +1,6 @@
 # 01 · Binary Search
 
-> Algorithm **1 of 31** in the *Algorithms in C++* series — an original,
+> Algorithm **1** of the *Algorithms in C++* series — an original,
 > from-scratch implementation with a full test suite. C++17, zero dependencies.
 
 Binary search finds a target inside a **sorted** sequence by repeatedly cutting
@@ -128,6 +128,5 @@ unless you keep it re-sorted.
 
 ## Series
 
-Part of the **Algorithms in C++** repository — 31 algorithms released one
-lesson at a time, each in its own self-contained folder with tests. The
-repository root `README.md` tracks the published lessons as they land.
+Part of the **Algorithms in C++** repository — each lesson is a
+self-contained folder with its implementation, its tests, and its write-up.
