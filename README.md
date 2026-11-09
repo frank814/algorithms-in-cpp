@@ -6,7 +6,7 @@ All you need is a C++ compiler (g++, clang++, or MSVC) — no libraries, no setu
 
 ## Files
 
-### Binary Search
+### [Binary Search](binary_search.cpp)
 
 Finds a target in a sorted list by cutting the search range in half on every step.
 
@@ -15,7 +15,7 @@ Finds a target in a sorted list by cutting the search range in half on every ste
 - Repeats until the middle hits or the range becomes empty (not found → `-1`).
 - Two extra helpers return the first or just-past-the-last position of a value, so duplicate-heavy lists behave predictably.
 
-### Selection Sort
+### [Selection Sort](selection_sort.cpp)
 
 Sorts a list in place by repeatedly picking the smallest remaining value.
 
@@ -24,7 +24,7 @@ Sorts a list in place by repeatedly picking the smallest remaining value.
 - The prefix grows by one element per pass until the whole list is sorted.
 - Needs no extra memory — the swaps happen inside the original list.
 
-### Recursion
+### [Recursion](recursion.cpp)
 
 A function solves smaller copies of the same problem until a base case answers directly.
 
@@ -33,7 +33,7 @@ A function solves smaller copies of the same problem until a base case answers d
 - `factorial` guards against 64-bit overflow by returning `0` for `n > 20`.
 - `fibonacci` keeps a small memo table, so each value is computed once instead of being recomputed down every branch.
 
-### Quicksort
+### [Quicksort](quicksort.cpp)
 
 Sorts in place by splitting around a pivot and sorting the two sides.
 
