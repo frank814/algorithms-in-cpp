@@ -1,14 +1,4 @@
-# 03 · Recursion
-
-A function solves smaller copies of the same problem until a base case answers directly — shown here with factorial and Fibonacci.
-
-## How it works
-
-- Base case: return without recursing. Recursive step: move closer to the base case.
-- Each waiting call sits on the call stack until the deepest one returns, then the frames unwind.
-- Plain recursive Fibonacci recomputes the same values over and over — a memo cache computes each value once (O(n)).
-
-## Run
+# 03 · Recursion — Run
 
 ```bash
 g++ -std=c++17 -O2 -Wall -Wextra -o recursion recursion.cpp
