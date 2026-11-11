@@ -42,6 +42,15 @@ Sorts in place by splitting around a pivot and sorting the two sides.
 - After one partition, everything left of the pivot is smaller and everything right is larger — so those two halves never interfere again.
 - Recurses on both halves, stopping at empty or single-element ranges; a guard never lets it recurse over an unchanged whole array.
 
+### [Hash Table](hash_table.cpp)
+
+Keeps key-to-value pairs so a value can be fetched by its key in about the same time whether the table holds ten entries or ten million.
+
+- A key is hashed (64-bit FNV-1a, provided for strings and integers) straight to a bucket number.
+- Separate chaining: each bucket owns a chain of entries, and a lookup scans only that one chain.
+- When the load factor passes 0.75 the table automatically rehashes into roughly double the buckets, which keeps chains short.
+- Average insert, get, contains, and erase are O(1); the worst case, every key colliding into one chain, is O(n).
+
 ## Run
 
 One example — the same two commands run any file in this repo:
