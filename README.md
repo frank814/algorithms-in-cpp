@@ -51,6 +51,15 @@ Keeps key-to-value pairs so a value can be fetched by its key in about the same 
 - When the load factor passes 0.75 the table automatically rehashes into roughly double the buckets, which keeps chains short.
 - Average insert, get, contains, and erase are O(1); the worst case, every key colliding into one chain, is O(n).
 
+### [Breadth-First Search](bfs.cpp)
+
+Searches an unweighted graph layer by layer and returns the shortest path from a start node to a target.
+
+- The graph stores each node's neighbor list, built either directed or undirected.
+- A FIFO queue explores every node one step away first, then two steps away, and so on, so distance grows in clean layers.
+- The first path that reaches the target is the shortest one, because every edge costs exactly the same.
+- Unreachable targets come back as distance -1, the source alone is distance 0, and the whole search runs in O(V + E).
+
 ## Run
 
 One example — the same two commands run any file in this repo:
