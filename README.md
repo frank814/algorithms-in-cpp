@@ -60,6 +60,15 @@ Searches an unweighted graph layer by layer and returns the shortest path from a
 - The first path that reaches the target is the shortest one, because every edge costs exactly the same.
 - Unreachable targets come back as distance -1, the source alone is distance 0, and the whole search runs in O(V + E).
 
+### [Binary Search Tree](binary_search_tree.cpp)
+
+Stores keys in a tree where everything smaller sits to the left and everything larger to the right, so insert, search, and delete follow one branch at a time.
+
+- Insert and search walk down comparing keys, left when smaller and right when bigger; duplicates are ignored, so every key lives in exactly one place.
+- Deleting a node with two children swaps in its in-order successor, the smallest key on the right, which keeps the ordering intact everywhere else.
+- In-order traversal reads the tree out already sorted, and height measures the deepest branch.
+- Average operations take O(log n); a tree skewed by sorted inserts degrades to O(n), the honest worst case.
+
 ## Run
 
 One example — the same two commands run any file in this repo:
