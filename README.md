@@ -2,7 +2,7 @@
 
 Every algorithm here is written from scratch and tested — built for learning how they actually work.
 
-All you need is a C++ compiler (g++, clang++, or MSVC) — no libraries, no setup.
+All you need is a C++ compiler (g++, clang++, or MSVC) — no libraries, no setup. On MSVC, compile with `/std:c++17` instead of `-std=c++17`.
 
 ## Files
 
