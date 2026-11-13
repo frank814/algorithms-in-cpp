@@ -51,6 +51,20 @@ Keeps key-to-value pairs so a value can be fetched by its key in about the same 
 - When the load factor passes 0.75 the table automatically rehashes into roughly double the buckets, which keeps chains short.
 - Average insert, get, contains, and erase are O(1); the worst case, every key colliding into one chain, is O(n).
 
+
+What it prints:
+
+```
+All hash table tests passed.
+
+size=3  buckets=8  load_factor=0.375
+Ada -> 37
+Grace -> 45
+Alan -> 41
+Edsger -> (absent)
+after erase, Grace -> absent
+final size=2  load_factor=0.25
+```
 ### [Breadth-First Search](bfs.cpp)
 
 Searches an unweighted graph layer by layer and returns the shortest path from a start node to a target.
