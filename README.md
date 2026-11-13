@@ -74,6 +74,20 @@ Searches an unweighted graph layer by layer and returns the shortest path from a
 - The first path that reaches the target is the shortest one, because every edge costs exactly the same.
 - Unreachable targets come back as distance -1, the source alone is distance 0, and the whole search runs in O(V + E).
 
+
+What it prints:
+
+```
+All BFS tests passed.
+
+diamond graph (0..4) + island (7-8):
+0 -> 4: distance=3  path=[0, 1, 3, 4]
+4 -> 0: distance=3  path=[4, 3, 1, 0]
+0 -> 3: distance=2  path=[0, 1, 3]
+0 -> 0: distance=0  path=[0]
+0 -> 8: distance=-1  path=[]
+0 -> 42: distance=-1  path=[]
+```
 ### [Binary Search Tree](binary_search_tree.cpp)
 
 Stores keys in a tree where everything smaller sits to the left and everything larger to the right, so insert, search, and delete follow one branch at a time.
