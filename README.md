@@ -99,7 +99,10 @@ done
 Which prints:
 
 ```
+PASS bfs.cpp
 PASS binary_search.cpp
+PASS binary_search_tree.cpp
+PASS hash_table.cpp
 PASS quicksort.cpp
 PASS recursion.cpp
 PASS selection_sort.cpp
