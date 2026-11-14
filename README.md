@@ -115,6 +115,15 @@ Builds an optimal prefix code from character frequencies, so common characters g
 - Encoding concatenates each character's code; decoding walks the bit-string back through a reverse table until each code boundary completes.
 - Handles the edge cases honestly: empty input yields no codes, a single distinct character gets code `"0"`, and one typical text shrinks from 360 baseline bits to 179.
 
+### [AVL Tree](avl_tree.cpp)
+
+A binary search tree that rebalances itself after every insert and delete, so operations stay O(log n) even when the keys arrive sorted.
+
+- Every node stores its height; if the balance factor of a node ever leaves {-1, 0, 1}, single rotations (zig-zig) or double rotations (zig-zag) put it back.
+- Deleting a node with two children swaps in its in-order successor and rebalances on the way back up, so the whole path stays legal.
+- The test helper `verify()` re-checks BST order, balance factors, and stored heights after every single operation, including a 750-operation randomised workload.
+- Sorted inserts of 1000 keys finish at height 9 (bound: 1.44 * log2(n + 2) ≈ 14.35) instead of 999 — the honest comparison against an unbalanced tree.
+
 ## Run
 
 One example — the same two commands run any file in this repo:
@@ -150,6 +159,7 @@ PASS binary_search.cpp
 PASS binary_search_tree.cpp
 PASS depth_first_search.cpp
 PASS huffman_coding.cpp
+PASS avl_tree.cpp
 PASS hash_table.cpp
 PASS quicksort.cpp
 PASS recursion.cpp
