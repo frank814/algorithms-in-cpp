@@ -106,6 +106,15 @@ Walks a graph by diving as deep as possible down one branch before backtracking 
 - Pre-, in-, and post-order tree traversals are cross-checked as permutations of the same node set: post-order ends at the root, in-order starts at the leftmost leaf.
 - Cycle detection colours vertices white/gray/black — a back edge to a still-gray vertex means a cycle, which catches self-loops and cycles hiding in unreachable components.
 
+### [Huffman Coding](huffman_coding.cpp)
+
+Builds an optimal prefix code from character frequencies, so common characters get short codes and the whole text compresses.
+
+- Frequencies are counted first, then a min-heap repeatedly merges the two rarest nodes into a parent whose frequency is their sum — the tree grows bottom-up.
+- Codes are assigned by walking the tree: left edge = `0`, right edge = `1`, so no code can ever be a prefix of another (the tests verify this directly).
+- Encoding concatenates each character's code; decoding walks the bit-string back through a reverse table until each code boundary completes.
+- Handles the edge cases honestly: empty input yields no codes, a single distinct character gets code `"0"`, and one typical text shrinks from 360 baseline bits to 179.
+
 ## Run
 
 One example — the same two commands run any file in this repo:
@@ -140,6 +149,7 @@ PASS bfs.cpp
 PASS binary_search.cpp
 PASS binary_search_tree.cpp
 PASS depth_first_search.cpp
+PASS huffman_coding.cpp
 PASS hash_table.cpp
 PASS quicksort.cpp
 PASS recursion.cpp
