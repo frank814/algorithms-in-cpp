@@ -97,6 +97,15 @@ Stores keys in a tree where everything smaller sits to the left and everything l
 - In-order traversal reads the tree out already sorted, and height measures the deepest branch.
 - Average operations take O(log n); a tree skewed by sorted inserts degrades to O(n), the honest worst case.
 
+### [Depth-First Search](depth_first_search.cpp)
+
+Walks a graph by diving as deep as possible down one branch before backtracking — written both recursively and with an explicit stack, plus tree traversals and cycle detection.
+
+- The iterative version uses a `std::stack` and pushes neighbours in reverse, so both versions produce the exact same discovery order (the tests assert the two orders are equal).
+- A sweep over the remaining vertices after the main walk makes sure disconnected components and isolated singletons are visited too.
+- Pre-, in-, and post-order tree traversals are cross-checked as permutations of the same node set: post-order ends at the root, in-order starts at the leftmost leaf.
+- Cycle detection colours vertices white/gray/black — a back edge to a still-gray vertex means a cycle, which catches self-loops and cycles hiding in unreachable components.
+
 ## Run
 
 One example — the same two commands run any file in this repo:
@@ -130,6 +139,7 @@ Which prints:
 PASS bfs.cpp
 PASS binary_search.cpp
 PASS binary_search_tree.cpp
+PASS depth_first_search.cpp
 PASS hash_table.cpp
 PASS quicksort.cpp
 PASS recursion.cpp
