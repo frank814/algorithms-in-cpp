@@ -124,6 +124,15 @@ A binary search tree that rebalances itself after every insert and delete, so op
 - The test helper `verify()` re-checks BST order, balance factors, and stored heights after every single operation, including a 750-operation randomised workload.
 - Sorted inserts of 1000 keys finish at height 9 (bound: 1.44 * log2(n + 2) ≈ 14.35) instead of 999 — the honest comparison against an unbalanced tree.
 
+### [Splay Tree](splay_tree.cpp)
+
+A self-adjusting search tree: every access rotates the touched node up to the root, so frequently used keys migrate to the top without any balance bookkeeping.
+
+- After searching, inserting, or deleting, the `splay` walk brings the accessed node to the root using three rotations: zig (at the root), zig-zig (child and parent lean the same way), zig-zag (they lean opposite ways).
+- No heights or balance factors are stored at all — the shape comes out of the access pattern, and the amortised cost of each operation is O(log n).
+- Inserting a duplicate doesn't add a key: it splays the existing node to the root and reports `false`; delete works by splaying the target up, then splaying the largest key of the left subtree to re-root around the gap.
+- The tests assert the node a search just touched really sits at the root every time, hot keys stay on top across repeated access, and 100 ascending inserts (a plain BST's worst case) keep the structure valid.
+
 ## Run
 
 One example — the same two commands run any file in this repo:
@@ -160,6 +169,7 @@ PASS binary_search_tree.cpp
 PASS depth_first_search.cpp
 PASS huffman_coding.cpp
 PASS avl_tree.cpp
+PASS splay_tree.cpp
 PASS hash_table.cpp
 PASS quicksort.cpp
 PASS recursion.cpp
