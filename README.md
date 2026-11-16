@@ -133,6 +133,15 @@ A self-adjusting search tree: every access rotates the touched node up to the ro
 - Inserting a duplicate doesn't add a key: it splays the existing node to the root and reports `false`; delete works by splaying the target up, then splaying the largest key of the left subtree to re-root around the gap.
 - The tests assert the node a search just touched really sits at the root every time, hot keys stay on top across repeated access, and 100 ascending inserts (a plain BST's worst case) keep the structure valid.
 
+### [B-Tree](b_tree.cpp)
+
+A balanced tree for large key sets where each node holds a small sorted array of keys instead of a single one — the shape databases and file systems use for on-disk lookups.
+
+- Every node holds between t-1 = 2 and 2t-1 = 5 keys (t = 3, the minimum degree), internal nodes keep exactly one more child than keys, and every leaf ends up at the same depth.
+- Insert never grows the tree downward: if a node is full on the way down it splits, and the median key is pushed up into the parent — a full root splits last, making the whole tree one level taller.
+- Search walks the keys inside a node (all sorted) and descends into the child range the key falls into, so each step filters up to 5 keys at once.
+- The `verify()` helper re-asserts the key-count bounds, strict ordering, and uniform leaf depth after every operation — the tests throw 100 sequential, 100 shuffled, and 500 descending keys at it, ending at leaf depth 3–4 instead of a 500-deep chain.
+
 ## Run
 
 One example — the same two commands run any file in this repo:
@@ -169,6 +178,7 @@ PASS binary_search_tree.cpp
 PASS depth_first_search.cpp
 PASS huffman_coding.cpp
 PASS avl_tree.cpp
+PASS b_tree.cpp
 PASS splay_tree.cpp
 PASS hash_table.cpp
 PASS quicksort.cpp
