@@ -1,11 +1,5 @@
 // huffman_coding.cpp
-// Huffman coding: builds an optimal prefix code tree from character
-// frequencies using std::priority_queue, encodes a string to a '0'/'1'
-// bit-string and decodes it back to the original text.
-//
-// Time complexity: O(n + k log k) to encode (n = text length, k = alphabet),
-// O(k log k) to build the tree, O(bits) to decode.
-// Space complexity: O(k) for the tree and code table.
+// huffman encode/decode built on a priority queue
 
 #include <cassert>
 #include <functional>
@@ -18,14 +12,12 @@
 
 class Huffman {
 public:
-    // Builds the code table from the frequencies of `text`.
-    // For a single distinct character the code is defined as "0".
+    // build the code table from the text's frequencies
     void build(const std::string& text) {
         codes_.clear();
         std::map<char, int> freq;
         for (char c : text) ++freq[c];
 
-        // Min-heap of (frequency, node) pairs.
         struct Node {
             char ch;          // '\0' for internal nodes
             int freq;
@@ -34,8 +26,7 @@ public:
             Node(char c, int f) : ch(c), freq(f), left(nullptr), right(nullptr) {}
         };
 
-        // Lower frequency first (min-heap); ties broken with std::less so the
-        // comparison stays well-defined for unrelated pointers.
+        // ties broken with std::less, < on unrelated pointers is undefined
         using HeapItem = std::pair<int, Node*>;
         auto cmp = [](const HeapItem& a, const HeapItem& b) {
             if (a.first != b.first) return a.first > b.first;
@@ -50,10 +41,9 @@ public:
             pq.push({f, n});
         }
 
-        // Empty input: no symbols, no codes.
         if (pq.empty()) return;
 
-        // Degenerate case: one distinct character -> single code "0".
+        // one distinct char, just use code "0"
         if (pq.size() == 1) {
             Node* only = pq.top().second;
             codes_[only->ch] = "0";
@@ -72,7 +62,6 @@ public:
         }
         Node* root = pq.top().second;
 
-        // Assign codes by walking the tree.
         std::function<void(Node*, std::string)> assign = [&](Node* n, std::string prefix) {
             if (n->left == nullptr && n->right == nullptr) {
                 codes_[n->ch] = prefix;
@@ -83,7 +72,7 @@ public:
         };
         assign(root, "");
 
-        // Free the nodes; the code table no longer needs the tree.
+        // tree not needed anymore
         for (Node* n : owned) delete n;
     }
 
@@ -97,16 +86,14 @@ public:
         return bits;
     }
 
-    // Decodes a bit-string back to the original text.
-    // Handles the single-character alphabet where the tree is degenerate.
     std::string decode(const std::string& bits) const {
         if (codes_.empty()) return "";
         if (codes_.size() == 1) {
-            // Every symbol is "0".
+            // every symbol is "0"
             for (char b : bits) assert(b == '0');
             return std::string(bits.size(), codes_.begin()->first);
         }
-        // Rebuild a decoding walk using the code table (no stored tree).
+        // walk the reverse code table, tree is already freed
         std::string out;
         std::string cur;
         std::map<std::string, char> rev;
@@ -130,7 +117,6 @@ private:
     std::map<char, std::string> codes_;
 };
 
-// Checks that no code is a prefix of any other code.
 bool is_prefix_free(const std::map<char, std::string>& codes) {
     std::vector<std::string> v;
     for (const auto& [c, code] : codes) v.push_back(code);
@@ -144,7 +130,7 @@ bool is_prefix_free(const std::map<char, std::string>& codes) {
 }
 
 int main() {
-    // --- Round-trip on a typical input --------------------------------------
+    // round trip on a sample text
     {
         Huffman h;
         std::string text = "huffman coding compresses repeated characters";
@@ -160,15 +146,15 @@ int main() {
         }
     }
 
-    // --- Frequencies produce expected optimal lengths -----------------------
+    // frequent chars get short codes
     {
-        // Frequencies a=5, b=3, c=1 -> 'a' must get the shortest code.
+        // a=5 b=3 c=1, 'a' should end up with the shortest code
         Huffman h;
         std::string text = "aaaaabbbc";
         h.build(text);
         const auto& c = h.codes();
         assert(c.size() == 3);
-        // a=5, b=3, c=1: 'a' merges last so it gets the shallowest code.
+        // 'a' merges last so it stays shallow
         assert(c.at('a').size() == 1);
         assert(c.at('b').size() == 2 && c.at('c').size() == 2);
         assert(c.at('b').size() <= c.at('c').size());
@@ -177,7 +163,7 @@ int main() {
         assert(h.decode(h.encode(text)) == text);
     }
 
-    // --- Round-trip on several inputs ---------------------------------------
+    // round trips over several inputs
     {
         std::vector<std::string> inputs = {
             "",
@@ -197,7 +183,7 @@ int main() {
         std::cout << "round-trip OK for " << inputs.size() << " inputs\n";
     }
 
-    // --- Single distinct character ------------------------------------------
+    // single distinct char
     {
         Huffman h;
         std::string text = "aaaaaaaaaa";
@@ -210,14 +196,14 @@ int main() {
         std::cout << "single char: code \"0\", round-trip OK\n";
     }
 
-    // --- Equal frequencies ---------------------------------------------------
+    // equal frequencies
     {
         Huffman h;
         std::string text = "abcd";  // every frequency = 1
         h.build(text);
         const auto& c = h.codes();
         assert(c.size() == 4);
-        // With equal frequencies all leaves share the same depth for k = 4.
+        // all leaves end up at the same depth
         for (const auto& [ch, code] : c) assert(code.size() == 2);
         assert(is_prefix_free(c));
         assert(h.decode(h.encode(text)) == text);
