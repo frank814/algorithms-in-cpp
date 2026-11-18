@@ -1,10 +1,4 @@
-// In-place selection sort.
-//
-// Repeatedly scans the unsorted suffix for its minimum and swaps it into
-// place at the front of the sorted prefix.
-//
-// Time:  O(n^2) comparisons in all cases (best / average / worst).
-// Space: O(1) extra — the sort happens in place.
+// selection sort, in place + tests
 
 #include <algorithm>
 #include <cassert>
@@ -12,7 +6,6 @@
 #include <random>
 #include <vector>
 
-// Sorts v in non-decreasing order using selection sort.
 void selection_sort(std::vector<int>& v) {
     const int n = static_cast<int>(v.size());
     for (int i = 0; i < n; ++i) {
@@ -28,7 +21,6 @@ void selection_sort(std::vector<int>& v) {
     }
 }
 
-// Returns true when v is sorted in non-decreasing order.
 bool is_sorted_non_decreasing(const std::vector<int>& v) {
     for (std::size_t i = 1; i < v.size(); ++i) {
         if (v[i - 1] > v[i]) {
@@ -46,38 +38,38 @@ static void check_against_reference(std::vector<int> v) {
 }
 
 static void run_tests() {
-    // Empty input.
+    // empty input
     std::vector<int> empty;
     selection_sort(empty);
     assert(empty.empty());
 
-    // Single element.
+    // single element
     std::vector<int> one{42};
     selection_sort(one);
     assert((one == std::vector<int>{42}));
 
-    // Already sorted (stability does not matter for correctness here).
+    // already sorted
     std::vector<int> sorted{1, 2, 3, 4, 5};
     check_against_reference(sorted);
 
-    // Reverse sorted.
+    // reverse sorted
     std::vector<int> reversed{9, 7, 5, 3, 1, 0, -2};
     check_against_reference(reversed);
 
-    // Duplicates.
+    // duplicates
     std::vector<int> dup{5, 1, 5, 3, 1, 5, 0};
     check_against_reference(dup);
 
-    // All equal.
+    // all equal
     std::vector<int> same(6, 7);
     selection_sort(same);
     assert((same == std::vector<int>(6, 7)));
 
-    // Negatives mixed in.
+    // negatives mixed in
     std::vector<int> negs{-3, 4, -1, 0, -3, 100, -50};
     check_against_reference(negs);
 
-    // Fixed-seed random array vs. std::sort reference.
+    // random array vs std::sort
     std::mt19937 rng(42);
     std::uniform_int_distribution<int> dist(-500, 500);
     std::vector<int> random(200);
@@ -86,14 +78,14 @@ static void run_tests() {
     }
     check_against_reference(random);
 
-    // A second, differently sized random case reuses the same seed stream.
+    // another size, same rng stream
     std::vector<int> random2(37);
     for (int& x : random2) {
         x = dist(rng);
     }
     check_against_reference(random2);
 
-    // Sortedness property on a random array.
+    // sortedness check on the result
     selection_sort(random2);
     assert(is_sorted_non_decreasing(random2));
 }
@@ -102,7 +94,7 @@ int main() {
     run_tests();
     std::cout << "All selection sort tests passed.\n\n";
 
-    // Deterministic demo.
+    // demo run
     std::vector<int> demo{-5, 3, 0, 3, -11, 8};
     std::cout << "before:";
     for (int x : demo) {
