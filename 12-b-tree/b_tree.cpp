@@ -1,11 +1,5 @@
-// b_tree.cpp
-// B-tree of minimum degree t = 3 (nodes hold between t-1 = 2 and 2t-1 = 5
-// keys, the root may hold 1..5). Supports insert with node splitting,
-// search and in-order traversal (which yields all keys sorted).
-// Duplicate policy: duplicates are ignored.
-//
-// Time complexity: O(t log_t n) = O(log n) per insert/search,
-// O(n) in-order traversal. Space: O(n).
+// b-tree, min degree 3 - insert with splits, search, in-order traversal
+// duplicates ignored
 
 #include <algorithm>
 #include <cassert>
@@ -42,7 +36,7 @@ public:
             return true;
         }
         Node* r = root_;
-        // If the root is full it splits before descending.
+        // full root splits before we descend
         if (static_cast<int>(r->keys.size()) == kMaxKeys) {
             Node* newRoot = new Node(false);
             newRoot->children.push_back(r);
@@ -57,7 +51,6 @@ public:
         return root_ != nullptr && searchNode(root_, key) != nullptr;
     }
 
-    // All keys in ascending order.
     std::vector<int> in_order() const {
         std::vector<int> out;
         collect(root_, out);
@@ -67,11 +60,7 @@ public:
     bool empty() const { return root_ == nullptr; }
     Node* root() const { return root_; }
 
-    // Structural verification:
-    //   - keys strictly increasing inside (lo, hi),
-    //   - every non-root node holds [t-1, 2t-1] keys (root: [0, 2t-1]),
-    //   - internal node has keys.size()+1 children,
-    //   - all leaves sit at the same depth (returned).
+    // key order, node sizes, children count, uniform leaf depth (returned)
     int verify(const Node* x, int depth, int& leaf_depth,
                long lo, long hi) const {
         const int n = static_cast<int>(x->keys.size());
@@ -100,7 +89,7 @@ public:
         return depth;
     }
 
-    // Convenience wrapper: checks the whole tree, returns leaf depth.
+    // whole-tree check, returns leaf depth
     int verifyAll() const {
         if (root_ == nullptr) return 0;
         int leaf_depth = -1;
@@ -121,19 +110,17 @@ private:
         return searchNode(x->children[i], key);
     }
 
-    // Splits the full child x->children[i] (2t-1 keys) into two nodes and
-    // pushes the median key up into x.
+    // split the full child at i, median moves up into x
     void splitChild(Node* x, int i) {
         Node* y = x->children[i];
-        Node* z = new Node(y->leaf);  // receives the upper half
+        Node* z = new Node(y->leaf);  // upper half
 
-        // y keeps keys [0, t-2]; the median (index t-1) rises to x;
-        // z takes keys [t, 2t-2].
+        // y keeps [0, t-2], median rises, z takes [t, 2t-2]
         int medianKey = y->keys[kMinKeys];
         z->keys.assign(y->keys.begin() + kMinDegree, y->keys.end());
         y->keys.resize(kMinKeys);
         if (!y->leaf) {
-            // Children are split as t / t around the median.
+            // children split t / t around the median
             z->children.assign(y->children.begin() + kMinDegree,
                                y->children.end());
             y->children.resize(kMinDegree);
@@ -143,7 +130,7 @@ private:
         x->children.insert(x->children.begin() + i + 1, z);
     }
 
-    // Inserts into a node that is guaranteed not to be full.
+    // x is guaranteed not full here
     void insertNonFull(Node* x, int key) {
         if (x->leaf) {
             auto pos = std::upper_bound(x->keys.begin(), x->keys.end(), key);
@@ -152,14 +139,14 @@ private:
         }
         int i = static_cast<int>(x->keys.size()) - 1;
         while (i >= 0 && key < x->keys[i]) --i;
-        ++i;  // child index to descend into
+        ++i;  // child to descend into
 
         Node* child = x->children[i];
         if (static_cast<int>(child->keys.size()) == kMaxKeys) {
             splitChild(x, i);
-            // The median moved up; decide which side holds the key.
+            // median moved up, pick the side
             if (key > x->keys[i]) ++i;
-            else if (key == x->keys[i]) return;  // paranoia: duplicates
+            else if (key == x->keys[i]) return;  // duplicate
             child = x->children[i];
         }
         insertNonFull(child, key);
@@ -184,9 +171,8 @@ private:
     }
 };
 
-// ---------------------------------------------------------------------------
 int main() {
-    // --- 100 sequential keys -------------------------------------------------
+    // 100 sequential keys
     {
         BTree t;
         std::vector<int> expected;
@@ -204,7 +190,7 @@ int main() {
                   << t.verifyAll() << '\n';
     }
 
-    // --- plus 100 shuffled keys ---------------------------------------------
+    // plus 100 shuffled keys
     {
         BTree t;
         std::vector<int> all;
@@ -212,7 +198,7 @@ int main() {
             assert(t.insert(k));
             all.push_back(k);
         }
-        // Deterministic shuffle of 101..200 (LCG-based Fisher-Yates).
+        // fixed-seed shuffle of 101..200
         std::vector<int> shuffled;
         for (int k = 101; k <= 200; ++k) shuffled.push_back(k);
         unsigned seed = 42u;
@@ -227,29 +213,26 @@ int main() {
         }
         std::sort(all.begin(), all.end());
 
-        t.verifyAll();                       // key counts + uniform leaf depth
-        assert(t.in_order() == all);         // everything sorted, nothing lost
+        t.verifyAll();                       // counts + leaf depth
+        assert(t.in_order() == all);         // all sorted, nothing lost
         assert(t.in_order().size() == 200);
         std::cout << "100 shuffled more keys: 200 total, in-order sorted\n";
     }
 
-    // --- Node key counts and uniform depth (explicit assertions) ------------
+    // node key counts and uniform depth
     {
         BTree t;
         for (int k = 1; k <= 300; ++k) assert(t.insert(k));
         int depth = t.verifyAll();
-        // verifyAll already asserts every node count is within
-        // [t-1, 2t-1] (root exempt at the low end) and all leaves share
-        // the same depth; restate the guarantees here:
         assert(depth >= 1);
         assert(t.in_order().size() == 300);
-        // With t = 3 and 300 keys the tree cannot be deeper than ~7.
+        // t=3, 300 keys can't get deeper than ~7
         assert(depth <= 7);
         std::cout << "300 keys: all nodes within [2,5], leaves at depth "
                   << depth << '\n';
     }
 
-    // --- Search hits and misses ---------------------------------------------
+    // search hits and misses
     {
         BTree t;
         for (int k = 1; k <= 50; ++k) assert(t.insert(k));
@@ -258,7 +241,7 @@ int main() {
         std::cout << "search: hits and misses OK\n";
     }
 
-    // --- Duplicates ignored --------------------------------------------------
+    // duplicates ignored
     {
         BTree t;
         assert(t.insert(10));
@@ -269,7 +252,7 @@ int main() {
         std::cout << "duplicates: ignored\n";
     }
 
-    // --- Small / empty trees -------------------------------------------------
+    // small / empty trees
     {
         BTree t;
         assert(t.empty());
@@ -284,7 +267,7 @@ int main() {
         std::cout << "empty/single-key tree: OK\n";
     }
 
-    // --- Key order stress: descending and alternating patterns --------------
+    // key order stress
     {
         BTree t;
         std::vector<int> expected;
