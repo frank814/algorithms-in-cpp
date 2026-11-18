@@ -1,25 +1,15 @@
-// Binary search over a sorted std::vector<int>.
-//
-// binary_search_iter / binary_search_rec: locate a value in a sorted vector,
-//   returning its index or -1 when absent.
-// lower_bound_idx: first position whose value is >= target (also the insertion
-//   point for target; equals the index of the first occurrence if present).
-// upper_bound_idx: first position whose value is > target (index just past the
-//   last occurrence of target).
-//
-// All variants run in O(log n) time and O(1) extra space (recursion uses
-// O(log n) stack frames).
+// binary search practice - a few variants + tests
 
 #include <cassert>
 #include <iostream>
 #include <vector>
 
-// Iterative binary search: returns an index of target, or -1 if not found.
+// returns an index of target, or -1 if not found
 int binary_search_iter(const std::vector<int>& v, int target) {
     int lo = 0;
     int hi = static_cast<int>(v.size()) - 1;
     while (lo <= hi) {
-        int mid = lo + (hi - lo) / 2;  // avoids overflow vs. (lo + hi) / 2
+        int mid = lo + (hi - lo) / 2;  // avoids overflow
         if (v[mid] == target) {
             return mid;
         }
@@ -32,10 +22,10 @@ int binary_search_iter(const std::vector<int>& v, int target) {
     return -1;
 }
 
-// Recursive binary search with the same contract as above.
+// recursive version, same deal
 int binary_search_rec(const std::vector<int>& v, int target, int lo, int hi) {
     if (lo > hi) {
-        return -1;  // empty search range
+        return -1;  // empty range
     }
     int mid = lo + (hi - lo) / 2;
     if (v[mid] == target) {
@@ -47,13 +37,12 @@ int binary_search_rec(const std::vector<int>& v, int target, int lo, int hi) {
     return binary_search_rec(v, target, lo, mid - 1);
 }
 
-// Convenience wrapper starting over the whole vector.
+// whole-vector wrapper
 int binary_search_rec(const std::vector<int>& v, int target) {
     return binary_search_rec(v, target, 0, static_cast<int>(v.size()) - 1);
 }
 
-// First index i with v[i] >= target; returns v.size() if all elements are
-// smaller. On an empty vector this is 0.
+// first index with v[i] >= target, else v.size()
 int lower_bound_idx(const std::vector<int>& v, int target) {
     int lo = 0;
     int hi = static_cast<int>(v.size());  // exclusive
@@ -68,7 +57,7 @@ int lower_bound_idx(const std::vector<int>& v, int target) {
     return lo;
 }
 
-// First index i with v[i] > target; returns v.size() if no element is larger.
+// first index with v[i] > target, else v.size()
 int upper_bound_idx(const std::vector<int>& v, int target) {
     int lo = 0;
     int hi = static_cast<int>(v.size());  // exclusive
@@ -84,14 +73,14 @@ int upper_bound_idx(const std::vector<int>& v, int target) {
 }
 
 static void run_tests() {
-    // Empty vector.
+    // empty vector
     const std::vector<int> empty;
     assert(binary_search_iter(empty, 5) == -1);
     assert(binary_search_rec(empty, 5) == -1);
     assert(lower_bound_idx(empty, 5) == 0);
     assert(upper_bound_idx(empty, 5) == 0);
 
-    // Single element.
+    // single element
     const std::vector<int> one{7};
     assert(binary_search_iter(one, 7) == 0);
     assert(binary_search_rec(one, 7) == 0);
@@ -104,7 +93,7 @@ static void run_tests() {
 
     const std::vector<int> v{1, 3, 5, 5, 5, 9, 12};
 
-    // Present value: both implementations return a valid index.
+    // present value
     int idx = binary_search_iter(v, 5);
     assert(idx >= 2 && idx <= 4 && v[idx] == 5);
     idx = binary_search_rec(v, 5);
@@ -113,35 +102,35 @@ static void run_tests() {
     assert(binary_search_iter(v, 12) == 6);
     assert(binary_search_rec(v, 12) == 6);
 
-    // Below / above the whole range.
+    // below / above the whole range
     assert(binary_search_iter(v, 0) == -1);
     assert(binary_search_rec(v, 0) == -1);
     assert(binary_search_iter(v, 100) == -1);
     assert(binary_search_rec(v, 100) == -1);
 
-    // Absent interior value.
+    // absent interior value
     assert(binary_search_iter(v, 4) == -1);
     assert(binary_search_rec(v, 4) == -1);
     assert(binary_search_iter(v, 7) == -1);
     assert(binary_search_rec(v, 7) == -1);
 
-    // Duplicates: first / last occurrence boundaries.
+    // duplicates, first/last occurrence
     assert(lower_bound_idx(v, 5) == 2);
     assert(upper_bound_idx(v, 5) == 5);
     assert(lower_bound_idx(v, 1) == 0);
     assert(upper_bound_idx(v, 12) == 7);
-    // Absent value: both bounds coincide at the insertion point.
+    // missing value, both bounds agree
     assert(lower_bound_idx(v, 4) == 2);
     assert(upper_bound_idx(v, 4) == 2);
     assert(lower_bound_idx(v, 100) == 7);
     assert(upper_bound_idx(v, 0) == 0);
 
-    // All equal.
+    // all equal
     const std::vector<int> same(5, 2);
     assert(lower_bound_idx(same, 2) == 0);
     assert(upper_bound_idx(same, 2) == 5);
     int eq = binary_search_iter(same, 2);
-    assert(eq >= 0 && eq < 5);  // any occurrence is a valid hit
+    assert(eq >= 0 && eq < 5);  // any hit works
     eq = binary_search_rec(same, 2);
     assert(eq >= 0 && eq < 5);
     assert(binary_search_iter(same, 9) == -1);
@@ -151,7 +140,7 @@ int main() {
     run_tests();
     std::cout << "All binary search tests passed.\n\n";
 
-    // Deterministic demo.
+    // demo run
     const std::vector<int> data{1, 3, 5, 5, 5, 9, 12};
     std::cout << "Sorted data:";
     for (int x : data) {
