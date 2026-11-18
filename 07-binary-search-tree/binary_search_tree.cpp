@@ -1,13 +1,5 @@
-// binary_search_tree.cpp
-// Binary search tree (BST) supporting insert, search, delete (leaf / one child /
-// two children via in-order successor), min/max, in-order traversal and height.
-// Duplicate policy: duplicates are IGNORED (insert of an existing key returns
-// false and leaves the tree unchanged).
-//
-// Time complexity (average / worst = skewed tree):
-//   insert, search, delete, min, max : O(log n) / O(n)
-//   in-order traversal, height       : O(n)
-// Space complexity: O(n) for the nodes, O(h) recursion stack.
+// bst: insert, search, delete, min/max, in-order, height
+// duplicates are ignored
 
 #include <cassert>
 #include <functional>
@@ -29,7 +21,7 @@ public:
     BST(const BST&) = delete;
     BST& operator=(const BST&) = delete;
 
-    // Inserts key; returns false if the key already exists.
+    // false if the key is already in
     bool insert(int key) {
         Node** link = &root_;
         while (*link != nullptr) {
@@ -49,7 +41,7 @@ public:
         return false;
     }
 
-    // Removes key if present; returns false when the key is not found.
+    // false if the key isn't there
     bool remove(int key) {
         Node* parent = nullptr;
         Node* cur = root_;
@@ -59,7 +51,7 @@ public:
         }
         if (cur == nullptr) return false;  // key not found
 
-        // Case 3: two children -> replace with in-order successor.
+        // two children: copy the successor's key over
         if (cur->left != nullptr && cur->right != nullptr) {
             Node* succParent = cur;
             Node* succ = cur->right;
@@ -68,12 +60,12 @@ public:
                 succ = succ->left;
             }
             cur->key = succ->key;
-            // Now the successor node has at most one child; re-link below.
+            // successor has at most one child now, unlink it below
             parent = succParent;
             cur = succ;
         }
 
-        // Cases 1 & 2: leaf or single child.
+        // leaf or single child
         Node* child = (cur->left != nullptr) ? cur->left : cur->right;
         if (parent == nullptr) {
             root_ = child;
@@ -86,7 +78,7 @@ public:
         return true;
     }
 
-    // Minimum key; requires a non-empty tree.
+    // needs a non-empty tree
     int min() const {
         assert(root_ != nullptr);
         Node* node = root_;
@@ -94,7 +86,7 @@ public:
         return node->key;
     }
 
-    // Maximum key; requires a non-empty tree.
+    // needs a non-empty tree
     int max() const {
         assert(root_ != nullptr);
         Node* node = root_;
@@ -114,7 +106,7 @@ public:
         return out;
     }
 
-    // Height of an empty tree is defined as -1.
+    // empty tree counts as -1
     int height() const { return heightOf(root_); }
 
     bool empty() const { return root_ == nullptr; }
@@ -137,7 +129,7 @@ private:
 };
 
 int main() {
-    // --- Insert sequence -> in-order traversal is sorted ---------------------
+    // in-order comes out sorted
     {
         BST t;
         std::vector<int> keys = {50, 30, 70, 20, 40, 60, 80, 45};
@@ -147,14 +139,14 @@ int main() {
         assert(t.in_order() == expected);
         assert(t.min() == 20);
         assert(t.max() == 80);
-        assert(t.height() == 3);  // 50 -> 30 -> 40 -> 45
+        assert(t.height() == 3);  // tallest path is 50-30-40-45
         std::cout << "in-order: ";
         bool first = true;
         for (int k : t.in_order()) { std::cout << (first ? "" : " ") << k; first = false; }
         std::cout << '\n';
     }
 
-    // --- Search hits and misses ---------------------------------------------
+    // search hits and misses
     {
         BST t;
         for (int k : {50, 30, 70, 20, 40, 60, 80}) assert(t.insert(k));
@@ -162,7 +154,7 @@ int main() {
         for (int k : {25, 55, 999, -1}) assert(!t.search(k));
     }
 
-    // --- Duplicate policy: duplicates ignored -------------------------------
+    // duplicates ignored
     {
         BST t;
         assert(t.insert(5));
@@ -173,7 +165,7 @@ int main() {
         std::cout << "duplicate policy: size stays 2\n";
     }
 
-    // --- Delete case 1: leaf -------------------------------------------------
+    // delete a leaf
     {
         BST t;
         for (int k : {50, 30, 70, 20}) assert(t.insert(k));
@@ -182,7 +174,7 @@ int main() {
         assert(t.in_order() == (std::vector<int>{30, 50, 70}));
     }
 
-    // --- Delete case 2: one child -------------------------------------------
+    // delete a node with one child
     {
         BST t;
         for (int k : {50, 30, 70, 20, 25}) assert(t.insert(k));
@@ -192,22 +184,22 @@ int main() {
         assert(t.in_order() == (std::vector<int>{25, 30, 50, 70}));
     }
 
-    // --- Delete case 3: two children (in-order successor) -------------------
+    // delete a node with two children
     {
         BST t;
         for (int k : {50, 30, 70, 20, 40, 60, 80}) assert(t.insert(k));
-        assert(t.remove(30));  // children 20, 40 -> successor 40
+        assert(t.remove(30));  // successor is 40
         assert(!t.search(30));
         assert(t.in_order() == (std::vector<int>{20, 40, 50, 60, 70, 80}));
 
-        // Successor that is deeper in the right subtree.
+        // deeper successor this time
         BST t2;
         for (int k : {50, 30, 70, 20, 40, 60, 80, 65}) assert(t2.insert(k));
-        assert(t2.remove(70));  // children 60, 80 -> successor 65
+        assert(t2.remove(70));  // successor is 65
         assert(t2.in_order() == (std::vector<int>{20, 30, 40, 50, 60, 65, 80}));
     }
 
-    // --- Delete root, delete missing key -------------------------------------
+    // delete the root, then a missing key
     {
         BST t;
         for (int k : {50, 30, 70}) assert(t.insert(k));
@@ -216,7 +208,7 @@ int main() {
         assert(!t.remove(12345));
     }
 
-    // --- Empty-tree operations are guarded -----------------------------------
+    // empty tree
     {
         BST t;
         assert(t.empty());
@@ -224,11 +216,11 @@ int main() {
         assert(t.in_order().empty());
         assert(!t.search(1));
         assert(!t.remove(1));
-        // min()/max() assert non-empty, so only called on non-empty trees.
+        // min/max assert non-empty, skip them here
         std::cout << "empty tree: guarded ops OK\n";
     }
 
-    // --- Full delete until empty --------------------------------------------
+    // delete everything
     {
         BST t;
         std::vector<int> keys = {40, 20, 60, 10, 30, 50, 70, 25, 35};
