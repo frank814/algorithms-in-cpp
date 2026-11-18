@@ -1,12 +1,5 @@
-// Separate-chaining hash table template HashTable<K, V>.
-//
-// - Hashing: 64-bit FNV-1a, provided for std::string and integral keys.
-// - Buckets: vector of entry chains; linear scan within a chain for lookup.
-// - Automatic rehash whenever the load factor exceeds 0.75 (buckets roughly
-//   double), so average operations stay O(1) with good hashing.
-//
-// Average time: insert/get/contains/erase O(1); worst case O(n) (one chain).
-// Space: O(n + buckets).
+// separate chaining hash table, FNV-1a hashing
+// doubles the buckets when the load factor goes over 0.75
 
 #include <cassert>
 #include <cstdint>
@@ -17,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-// FNV-1a hasher (64-bit) with overloads for std::string and integral keys.
+// 64-bit FNV-1a, handles string and int keys
 struct Fnv1aHash {
     static constexpr std::uint64_t kOffsetBasis = 14695981039346656037ULL;
     static constexpr std::uint64_t kPrime = 1099511628211ULL;
@@ -33,8 +26,7 @@ struct Fnv1aHash {
 
     template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
     std::size_t operator()(T value) const noexcept {
-        // Normalize to 64 bits (signed values are sign-extended, so distinct
-        // integers map to distinct bit patterns), then FNV-1a those bytes.
+        // widen to 64 bits first, then hash those bytes
         std::uint64_t bits = 0;
         if constexpr (std::is_signed_v<T>) {
             bits = static_cast<std::uint64_t>(static_cast<std::int64_t>(value));
@@ -58,8 +50,7 @@ public:
     explicit HashTable(std::size_t bucket_count = 8)
         : buckets_(bucket_count == 0 ? 1 : bucket_count) {}
 
-    // Inserts (key, value). If the key already exists its value is replaced;
-    // returns true only when a new key was added.
+    // returns false if the key was already there, value gets replaced
     bool insert(const K& key, const V& value) {
         if (contains(key)) {
             Entry& entry = find_entry(key);
@@ -74,7 +65,6 @@ public:
         return true;
     }
 
-    // Copies out the value for key, or std::nullopt when the key is absent.
     std::optional<V> get(const K& key) const {
         const Entry* entry = find_entry(key);
         if (entry == nullptr) {
@@ -85,8 +75,7 @@ public:
 
     bool contains(const K& key) const { return find_entry(key) != nullptr; }
 
-    // Returns a mutable reference, default-constructing the value if the key
-    // is not present yet (std::map-style semantics).
+    // missing keys get default-constructed, like std::map
     V& operator[](const K& key) {
         if (Entry* entry = find_entry_mut(key)) {
             return entry->value;
@@ -96,11 +85,11 @@ public:
         if (load_factor() > kMaxLoadFactor) {
             rehash(buckets_.size() * 2);
         }
-        // Re-locate: a rehash may have moved the new entry to another chain.
+        // rehash above may have moved it, look again
         return find_entry_mut(key)->value;
     }
 
-    // Removes key if present; returns whether anything was removed.
+    // false if the key wasn't there
     bool erase(const K& key) {
         auto& chain = buckets_[index_of(key)];
         for (auto it = chain.begin(); it != chain.end(); ++it) {
@@ -120,8 +109,7 @@ public:
         return static_cast<double>(size_) / static_cast<double>(buckets_.size());
     }
 
-    // Bucket a key currently maps to (exposed so tests can engineer
-    // collisions); recomputed from the hash, never stored.
+    // exposed so the collision test can find keys that land in one bucket
     std::size_t bucket_index(const K& key) const { return index_of(key); }
 
 private:
@@ -130,7 +118,7 @@ private:
         V value;
     };
 
-    // Maximum load factor the table tries to maintain after every insert.
+    // rehash kicks in once the load factor passes this
     static constexpr double kMaxLoadFactor = 0.75;
 
     std::size_t index_of(const K& key) const {
@@ -165,8 +153,7 @@ private:
         return buckets_[0].front();  // unreachable; silences compiler
     }
 
-    // Rebuilds the bucket array with new_bucket_count chains, redistributing
-    // every existing entry. Load factor is preserved or halved.
+    // spread everything out into a bigger bucket array
     void rehash(std::size_t new_bucket_count) {
         if (new_bucket_count < 1) {
             new_bucket_count = 1;
@@ -186,12 +173,12 @@ private:
 };
 
 static void run_tests() {
-    // --- Basic CRUD on a fresh table -----------------------------------
+    // basic insert / lookup / erase
     HashTable<std::string, int> t;
     assert(t.empty());
     assert(t.size() == 0);
     assert(!t.contains("alpha"));
-    assert(t.get("alpha") == std::nullopt);  // missing-key lookup (empty)
+    assert(t.get("alpha") == std::nullopt);  // missing key
 
     assert(t.insert("alpha", 1));
     assert(t.insert("beta", 2));
@@ -201,34 +188,34 @@ static void run_tests() {
     assert(t.get("alpha") == 1);
     assert(t.get("beta") == 2);
     assert(t.get("gamma") == 3);
-    assert(t.get("delta") == std::nullopt);  // missing key (non-empty table)
+    assert(t.get("delta") == std::nullopt);  // missing key
     assert(!t.contains("delta"));
 
-    // Overwrite an existing key: size unchanged, value replaced.
+    // overwriting keeps the size the same
     assert(!t.insert("beta", 20));
     assert(t.size() == 3);
     assert(t.get("beta") == 20);
 
-    // operator[] reads, writes, and default-constructs missing keys.
+    // operator[] on a missing key inserts a default
     assert(t["gamma"] == 3);
     t["gamma"] = 30;
     assert(t.get("gamma") == 30);
     t["newcomer"] = 99;
     assert(t.size() == 4);
     assert(t.get("newcomer") == 99);
-    t["defaults"];  // default-constructs an int value (0)
+    t["defaults"];  // int defaults to 0
     assert(t.get("defaults") == 0);
     assert(t.size() == 5);
 
-    // Erase then get reports absent.
+    // erased key is gone
     assert(t.erase("beta"));
     assert(!t.contains("beta"));
     assert(t.get("beta") == std::nullopt);
     assert(t.size() == 4);
-    assert(!t.erase("beta"));  // erasing twice reports failure
+    assert(!t.erase("beta"));  // second erase fails
     assert(t.size() == 4);
 
-    // --- Integral keys, including negatives and zero --------------------
+    // int keys, negatives and zero
     HashTable<int, std::string> nums;
     assert(nums.insert(0, "zero"));
     assert(nums.insert(-7, "minus seven"));
@@ -241,9 +228,7 @@ static void run_tests() {
     assert(nums.get(-7) == std::nullopt);
     assert(nums.size() == 2);
 
-    // --- Keys engineered into a single bucket ---------------------------
-    // Force 5 keys into bucket 0 of a table that starts with 8 buckets.
-    // 5 entries / 8 buckets = 0.625 <= 0.75, so no rehash disturbs the test.
+    // force 5 keys into bucket 0; load stays under 0.75 so no rehash
     HashTable<int, int> collision(8);
     assert(collision.bucket_count() == 8);
     std::vector<int> colliding;
@@ -264,7 +249,7 @@ static void run_tests() {
     }
     assert(collision.size() == 5);
     assert(collision.bucket_count() == 8);  // still no rehash
-    // Erasing one key leaves the rest of the chain intact.
+    // the rest of the chain still works
     assert(collision.erase(colliding[2]));
     for (std::size_t i = 0; i < colliding.size(); ++i) {
         if (i == 2) {
@@ -274,12 +259,12 @@ static void run_tests() {
         }
     }
 
-    // --- Rehash preserves every entry ----------------------------------
+    // rehash keeps every entry
     HashTable<int, int> big(4);
     const int n = 500;
     for (int i = 0; i < n; ++i) {
         big.insert(i, i * 3 + 1);
-        assert(big.load_factor() <= 0.75);  // invariant holds after each insert
+        assert(big.load_factor() <= 0.75);  // load stays under 0.75
     }
     assert(big.size() == static_cast<std::size_t>(n));
     assert(big.bucket_count() > 4);  // rehashing must have happened
@@ -297,7 +282,7 @@ static void run_tests() {
         assert(big.get(i) == i * 3 + 1);
     }
 
-    // --- String keys over many entries (rehash path) --------------------
+    // string keys, lots of inserts
     HashTable<std::string, int> words(2);
     for (int i = 0; i < 200; ++i) {
         words.insert("key_" + std::to_string(i), i);
@@ -314,7 +299,7 @@ int main() {
     run_tests();
     std::cout << "All hash table tests passed.\n\n";
 
-    // Deterministic demo.
+    // demo
     HashTable<std::string, int> ages;
     ages.insert("Ada", 36);
     ages.insert("Grace", 45);
