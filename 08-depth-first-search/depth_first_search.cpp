@@ -1,11 +1,5 @@
 // depth_first_search.cpp
-// Depth-first search toolkit:
-//   (a) recursive and iterative DFS over an adjacency-list graph;
-//   (b) pre/in/post-order traversals of a binary tree (recursive);
-//   (c) cycle detection in a directed graph (3-color DFS).
-//
-// Time complexity: O(V + E) for graph DFS and cycle detection,
-// O(n) for tree traversals. Space: O(V) for visited sets, O(h) recursion.
+// dfs (recursive + iterative), tree traversals, directed cycle check
 
 #include <algorithm>
 #include <cassert>
@@ -14,13 +8,8 @@
 #include <stack>
 #include <vector>
 
-// ---------------------------------------------------------------------------
-// (a) Graph DFS — recursive and iterative, both record discovery order.
-// ---------------------------------------------------------------------------
 using Graph = std::vector<std::vector<int>>;
 
-// Iterative DFS from `start`, pushing vertices to `order` in discovery order.
-// Handles disconnected graphs by iterating all vertices from the caller.
 std::vector<int> dfs_iterative(const Graph& g, int start) {
     std::vector<int> order;
     std::vector<bool> visited(g.size(), false);
@@ -32,8 +21,7 @@ std::vector<int> dfs_iterative(const Graph& g, int start) {
         if (visited[u]) continue;
         visited[u] = true;
         order.push_back(u);
-        // Push neighbours in reverse so the smallest index is visited first
-        // (keeps discovery order identical to the recursive version).
+        // reverse push keeps order the same as recursive
         const auto& nbrs = g[u];
         for (auto it = nbrs.rbegin(); it != nbrs.rend(); ++it) {
             if (!visited[*it]) st.push(*it);
@@ -42,7 +30,6 @@ std::vector<int> dfs_iterative(const Graph& g, int start) {
     return order;
 }
 
-// Recursive DFS helper: visits `u`, then its unvisited neighbours in order.
 void dfs_recursive_visit(const Graph& g, int u,
                           std::vector<bool>& visited, std::vector<int>& order) {
     visited[u] = true;
@@ -52,19 +39,18 @@ void dfs_recursive_visit(const Graph& g, int u,
     }
 }
 
-// Recursive DFS over the whole graph (covers every connected component).
 std::vector<int> dfs_recursive(const Graph& g, int start) {
     std::vector<bool> visited(g.size(), false);
     std::vector<int> order;
     dfs_recursive_visit(g, start, visited, order);
-    // Sweep remaining vertices so disconnected components are included.
+    // pick up whatever the first call missed
     for (int u = 0; u < static_cast<int>(g.size()); ++u) {
         if (!visited[u]) dfs_recursive_visit(g, u, visited, order);
     }
     return order;
 }
 
-// Iterative DFS over the whole graph starting from vertex 0-style sweep.
+// same full sweep, iterative
 std::vector<int> dfs_iterative_all(const Graph& g) {
     std::vector<int> order;
     std::vector<bool> visited(g.size(), false);
@@ -87,9 +73,6 @@ std::vector<int> dfs_iterative_all(const Graph& g) {
     return order;
 }
 
-// ---------------------------------------------------------------------------
-// (b) Binary tree traversals (recursive).
-// ---------------------------------------------------------------------------
 struct TreeNode {
     int val;
     TreeNode* left;
@@ -118,7 +101,6 @@ void postorder(const TreeNode* n, std::vector<int>& out) {
     out.push_back(n->val);
 }
 
-// Frees every node of a tree rooted at `n`.
 void free_tree(TreeNode* n) {
     if (n == nullptr) return;
     free_tree(n->left);
@@ -126,10 +108,7 @@ void free_tree(TreeNode* n) {
     delete n;
 }
 
-// ---------------------------------------------------------------------------
-// (c) Cycle detection in a directed graph (DFS with white/gray/black colors).
-// A back edge to a currently-gray vertex means a cycle exists.
-// ---------------------------------------------------------------------------
+// 3-color dfs, a back edge to a gray vertex means cycle
 bool has_cycle_directed(const Graph& g) {
     enum Color { White, Gray, Black };
     std::vector<Color> color(g.size(), White);
@@ -137,7 +116,7 @@ bool has_cycle_directed(const Graph& g) {
     std::function<bool(int)> visit = [&](int u) -> bool {
         color[u] = Gray;
         for (int v : g[u]) {
-            if (color[v] == Gray) return true;   // back edge -> cycle
+            if (color[v] == Gray) return true;   // back edge means cycle
             if (color[v] == White && visit(v)) return true;
         }
         color[u] = Black;
@@ -150,12 +129,11 @@ bool has_cycle_directed(const Graph& g) {
     return false;
 }
 
-// ---------------------------------------------------------------------------
 int main() {
-    // --- (a) recursive vs iterative DFS produce identical order --------------
+    // recursive vs iterative give the same order
     {
-        // Fixed graph, vertices 0..5:
-        // 0 -> 1, 2 ; 1 -> 3 ; 2 -> 3, 4 ; 3 -> 5 ; 4 -> 5 ; 5 sink.
+        // fixed graph: 1 and 2 hang off 0, 3 hangs off 1 and 2, 5 off 3 and 4
+        // 5 is the sink
         Graph g(6);
         g[0] = {1, 2};
         g[1] = {3};
@@ -174,14 +152,14 @@ int main() {
         std::cout << '\n';
     }
 
-    // --- Disconnected graph: every component is visited ----------------------
+    // disconnected graph
     {
         Graph g(6);
         g[0] = {1};
         g[1] = {0};
         g[2] = {3};   // component {2,3}
         g[3] = {2};
-        // 4 and 5 are isolated singletons.
+        // 4 and 5 are isolated
         auto rec = dfs_recursive(g, 0);
         auto itr = dfs_iterative_all(g);
         assert(rec == itr);
@@ -192,7 +170,7 @@ int main() {
         std::cout << "disconnected graph visited all 6 vertices\n";
     }
 
-    // --- Single-node graph ---------------------------------------------------
+    // single node graph
     {
         Graph g(1);
         assert(dfs_recursive(g, 0) == std::vector<int>{0});
@@ -200,14 +178,8 @@ int main() {
         assert(!has_cycle_directed(g));
     }
 
-    // --- Tree traversals verified against each other -------------------------
+    // tree traversals
     {
-        // Tree shape:
-        //          1
-        //        /   .
-        //       2     3
-        //      / .     .
-        //     4   5     6
         TreeNode* r = new TreeNode(1);
         r->left = new TreeNode(2);
         r->right = new TreeNode(3);
@@ -224,26 +196,24 @@ int main() {
         assert((in == std::vector<int>{4, 2, 5, 1, 3, 6}));
         assert((post == std::vector<int>{4, 5, 2, 6, 3, 1}));
 
-        // Cross-verification: all three contain each node exactly once and
-        // agree on root-first / root-last structure.
+        // sizes match, root first in pre and last in post
         assert(pre.size() == in.size() && in.size() == post.size());
         assert(pre.front() == 1 && post.back() == 1 && post.front() == 4);
-        // All three orders must be permutations of the same node set.
+        // all three should be permutations of the same nodes
         std::vector<int> a = pre, b = in, c = post;
         std::sort(a.begin(), a.end());
         std::sort(b.begin(), b.end());
         std::sort(c.begin(), c.end());
         std::vector<int> nodes = {1, 2, 3, 4, 5, 6};
         assert(a == nodes && b == nodes && c == nodes);
-        // Last node of post = root; in-order starts at the leftmost leaf (4)
-        // and ends at the rightmost node (6).
+        // in-order runs leftmost node to rightmost node
         assert(in.front() == 4 && in.back() == 6);
 
         std::cout << "pre : 1 2 4 5 3 6\npost: 4 5 2 6 3 1\n";
         free_tree(r);
     }
 
-    // --- Single-node tree traversals ----------------------------------------
+    // single node tree
     {
         TreeNode* r = new TreeNode(42);
         std::vector<int> pre, in, post;
@@ -256,27 +226,27 @@ int main() {
         free_tree(r);
     }
 
-    // --- Cycle detection: acyclic vs cyclic ---------------------------------
+    // cycle detection
     {
-        // Acyclic DAG.
+        // DAG, no cycle
         Graph dag(4);
         dag[0] = {1, 2};
         dag[1] = {3};
         dag[2] = {3};
         assert(!has_cycle_directed(dag));
 
-        // With a back edge 3 -> 0.
+        // add a back edge 3 to 0
         Graph cyc = dag;
         cyc[3] = {0};
         assert(has_cycle_directed(cyc));
 
-        // Self-loop.
+        // self loop
         Graph self(2);
         self[0] = {0};
         self[1] = {};
         assert(has_cycle_directed(self));
 
-        // Cycle in a component not reachable from vertex 0.
+        // cycle in a part of the graph not reachable from 0
         Graph hidden(4);
         hidden[0] = {1};
         hidden[1] = {};
@@ -284,7 +254,7 @@ int main() {
         hidden[3] = {2};
         assert(has_cycle_directed(hidden));
 
-        // Single node, no self-loop.
+        // single node, no self loop
         Graph one(1);
         assert(!has_cycle_directed(one));
 
