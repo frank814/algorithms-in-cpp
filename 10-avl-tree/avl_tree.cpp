@@ -1,12 +1,5 @@
-// avl_tree.cpp
-// Self-balancing AVL binary search tree: insert and delete with single/double
-// rotations (zig-zig, zig-zag cases). Every node stores its height; the
-// balance factor of every node stays in {-1, 0, 1}.
-// Duplicate policy: duplicates are ignored.
-//
-// Time complexity: O(log n) for insert/search/delete, O(n) traversal.
-// Space: O(n); recursion depth O(log n).
-// Height bound: h <= 1.44 * log2(n + 2) (height counted in edges, leaf = 0).
+// avl tree - insert/delete with rotations, keeps height diff <= 1
+// duplicates ignored
 
 #include <algorithm>
 #include <cassert>
@@ -20,7 +13,7 @@ class AVL {
 public:
     struct Node {
         int key;
-        int height;  // edges on the longest path down to a leaf; leaf = 0
+        int height;  // height in edges, leaf = 0
         Node* left;
         Node* right;
         Node(int k) : key(k), height(0), left(nullptr), right(nullptr) {}
@@ -56,11 +49,7 @@ public:
 
     static int heightOf(const Node* n) { return n == nullptr ? -1 : n->height; }
 
-    // Verifies the AVL property recursively:
-    //   - BST order within [lo, hi) bounds,
-    //   - balance factor in {-1, 0, 1},
-    //   - stored height matches recomputed height.
-    // Returns the recomputed height (edges).
+    // checks bst order, balance and stored heights, returns height
     static int verify(const Node* n, long lo, long hi) {
         if (n == nullptr) return -1;
         assert(lo < n->key && n->key < hi);
@@ -107,21 +96,21 @@ private:
         return y;
     }
 
-    // Restores the AVL property at `n` after a child changed.
+    // rebalance after a child changed
     static Node* rebalance(Node* n) {
         update(n);
         int b = balanceOf(n);
         if (b > 1) {                      // left-heavy
-            if (balanceOf(n->left) < 0) { // zig-zag: left-right case
+            if (balanceOf(n->left) < 0) { // left-right case
                 n->left = rotateLeft(n->left);
             }
-            return rotateRight(n);        // zig-zig: left-left case
+            return rotateRight(n);        // left-left case
         }
         if (b < -1) {                     // right-heavy
-            if (balanceOf(n->right) > 0) { // zig-zag: right-left case
+            if (balanceOf(n->right) > 0) { // right-left case
                 n->right = rotateRight(n->right);
             }
-            return rotateLeft(n);         // zig-zig: right-right case
+            return rotateLeft(n);         // right-right case
         }
         return n;
     }
@@ -138,8 +127,7 @@ private:
         return added;
     }
 
-    // Removes the in-order successor of `n` from its right subtree and
-    // returns its key; used when both children are present.
+    // pulls the in-order successor out of the right subtree, returns its key
     static int takeSuccessor(Node*& n) {
         if (n->left == nullptr) {
             Node* doomed = n;
@@ -167,7 +155,7 @@ private:
                 n = (n->left != nullptr) ? n->left : n->right;
                 delete doomed;
             } else {
-                // Two children: overwrite with in-order successor's key.
+                // two children: swap in the successor's key
                 n->key = takeSuccessor(n->right);
             }
         }
@@ -190,15 +178,14 @@ private:
     }
 };
 
-// ---------------------------------------------------------------------------
 int main() {
-    // Helper: verify AVL invariants + sorted in-order after every operation.
+    // check invariants and sorted order after each op
     auto check = [](AVL& t, const std::vector<int>& expected) {
         AVL::verify(t.root(), LONG_MIN, LONG_MAX);
         assert(t.in_order() == expected);
     };
 
-    // --- Insert a sequence -> in-order sorted, AVL property holds -----------
+    // insert sequence
     {
         AVL t;
         std::vector<int> keys = {50, 30, 70, 20, 40, 60, 80, 45, 65, 35};
@@ -213,27 +200,27 @@ int main() {
         std::cout << "inserts: AVL invariants hold after every op\n";
     }
 
-    // --- All four rotation cases --------------------------------------------
+    // all four rotation cases
     {
-        // Left-left (right rotation): 30 20 10
+        // left-left: 30 20 10
         AVL ll;
         for (int k : {30, 20, 10}) assert(ll.insert(k));
         check(ll, {10, 20, 30});
         assert(ll.root()->key == 20);
 
-        // Right-right (left rotation): 10 20 30
+        // right-right: 10 20 30
         AVL rr;
         for (int k : {10, 20, 30}) assert(rr.insert(k));
         check(rr, {10, 20, 30});
         assert(rr.root()->key == 20);
 
-        // Left-right (double): 30 10 20
+        // left-right: 30 10 20
         AVL lr;
         for (int k : {30, 10, 20}) assert(lr.insert(k));
         check(lr, {10, 20, 30});
         assert(lr.root()->key == 20);
 
-        // Right-left (double): 10 30 20
+        // right-left: 10 30 20
         AVL rl;
         for (int k : {10, 30, 20}) assert(rl.insert(k));
         check(rl, {10, 20, 30});
@@ -242,7 +229,7 @@ int main() {
         std::cout << "rotation cases: LL/RR/LR/RL all balanced\n";
     }
 
-    // --- Sorted insert worst case stays shallow -----------------------------
+    // sorted insert stays shallow
     {
         AVL t;
         const int n = 1000;
@@ -252,7 +239,7 @@ int main() {
         std::cout << "sorted insert n=" << n << " height=" << h
                   << " bound=" << bound << '\n';
         assert(static_cast<double>(h) <= bound);
-        // Compare against an unbalanced BST of the same insertions (height n-1).
+        // plain BST would be height n-1
         assert(h < n - 1);
 
         std::vector<int> expected(n);
@@ -260,7 +247,7 @@ int main() {
         check(t, expected);
     }
 
-    // --- Randomised workload keeps the invariants ---------------------------
+    // random workload
     {
         AVL t;
         std::vector<int> present;
@@ -290,7 +277,7 @@ int main() {
                   << " keys left)\n";
     }
 
-    // --- Deletes of root / middle / leaf ------------------------------------
+    // root / middle / leaf deletes
     {
         AVL t;
         std::vector<int> keys = {40, 20, 60, 10, 30, 50, 70, 5, 15, 25, 35};
@@ -299,7 +286,7 @@ int main() {
         for (int k : keys) assert(t.insert(k));
         check(t, present);
 
-        // Leaf delete (5), middle delete (20), root delete (40).
+        // leaf delete (5), middle (20), root (40)
         for (int k : {5, 20, 40}) {
             assert(t.remove(k));
             present.erase(std::find(present.begin(), present.end(), k));
@@ -309,7 +296,7 @@ int main() {
         assert(!t.remove(40));   // already gone
         assert(!t.remove(999));
 
-        // Drain everything; tree must end up empty and balanced throughout.
+        // drain the rest
         for (int k : present) {
             assert(t.remove(k));
         }
@@ -320,7 +307,7 @@ int main() {
         std::cout << "deletes: root/middle/leaf + drain OK\n";
     }
 
-    // --- Empty-tree guards ---------------------------------------------------
+    // empty tree
     {
         AVL t;
         assert(t.empty());
