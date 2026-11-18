@@ -1,14 +1,5 @@
-// Breadth-first search on an adjacency-list graph for unweighted shortest
-// paths.
-//
-// Graph stores int node ids in a sorted map of neighbor lists; it can be
-// built as directed or undirected. bfs_shortest_path explores the graph in
-// FIFO layers from the source and reconstructs the first path that reaches
-// the target, which is shortest because all edges cost 1.
-//
-// bfs_shortest_path: time O(V + E), space O(V).
-// A missing endpoint or an unreachable target yields distance -1 and an
-// empty path; the source itself yields distance 0 and path {source}.
+// bfs on an adjacency list graph, shortest path when every edge costs 1
+// missing or unreachable endpoints give distance -1
 
 #include <cassert>
 #include <iostream>
@@ -20,23 +11,22 @@ class Graph {
 public:
     explicit Graph(bool directed = false) : directed_(directed) {}
 
-    // Adds node n with no edges (useful for isolated vertices).
+    // standalone node, no edges
     void add_node(int n) { adjacency_[n]; }
 
-    // Adds u -> v (and v -> u when the graph is undirected). Both endpoints
-    // become known nodes either way.
+    // both directions unless the graph is directed
     void add_edge(int u, int v) {
         adjacency_[u].push_back(v);
         if (!directed_) {
             adjacency_[v].push_back(u);
         } else {
-            adjacency_[v];  // register v even if it has no outgoing edges
+            adjacency_[v];  // still counts v as a node
         }
     }
 
     bool has_node(int n) const { return adjacency_.count(n) != 0; }
 
-    // Neighbors of n; n must be a known node.
+    // unknown nodes just give an empty list
     const std::vector<int>& neighbors(int n) const {
         static const std::vector<int> empty;
         auto it = adjacency_.find(n);
@@ -52,28 +42,28 @@ private:
 };
 
 struct BfsResult {
-    std::vector<int> path;  // empty when the target is unreachable
-    int distance = -1;      // edge count of the path; -1 when unreachable
+    std::vector<int> path;  // empty when unreachable
+    int distance = -1;      // -1 when unreachable
 };
 
-// Shortest unweighted path from src to dst via BFS.
+// shortest path, every edge has cost 1
 BfsResult bfs_shortest_path(const Graph& g, int src, int dst) {
     BfsResult result;
-    // Unknown endpoint: nothing to search.
+    // bad endpoint, nothing to search
     if (!g.has_node(src) || !g.has_node(dst)) {
         return result;
     }
 
     std::map<int, int> parent;  // visited set + path reconstruction
     std::queue<int> frontier;
-    parent[src] = src;  // self-parent marks the root (never followed)
+    parent[src] = src;  // src is its own parent
     frontier.push(src);
 
     while (!frontier.empty()) {
         const int u = frontier.front();
         frontier.pop();
         if (u == dst) {
-            break;  // first visit is the shortest route
+            break;  // first time we reach dst, so it is shortest
         }
         for (int v : g.neighbors(u)) {
             if (parent.find(v) == parent.end()) {
@@ -84,10 +74,10 @@ BfsResult bfs_shortest_path(const Graph& g, int src, int dst) {
     }
 
     if (parent.find(dst) == parent.end()) {
-        return result;  // dst exists but no route reaches it
+        return result;  // no route to dst
     }
 
-    // Walk parents back to the source, then reverse into src -> dst order.
+    // walk parents back to src, then flip into src-first order
     int cur = dst;
     result.path.push_back(cur);
     while (cur != src) {
@@ -101,8 +91,7 @@ BfsResult bfs_shortest_path(const Graph& g, int src, int dst) {
     return result;
 }
 
-// True when every consecutive pair of path entries is a real edge and the
-// endpoints match (a defensive check for the tests).
+// checks every hop is a real edge (test helper)
 bool is_valid_path(const Graph& g, const std::vector<int>& path, int src,
                    int dst) {
     if (path.empty()) {
@@ -128,14 +117,14 @@ bool is_valid_path(const Graph& g, const std::vector<int>& path, int src,
 }
 
 static void run_tests() {
-    // --- Path to self ---------------------------------------------------
+    // path to self
     Graph self;
     self.add_node(1);
     BfsResult r = bfs_shortest_path(self, 1, 1);
     assert(r.distance == 0);
     assert((r.path == std::vector<int>{1}));
 
-    // Path to self inside a bigger graph still costs 0.
+    // still 0 inside a bigger graph
     Graph chain;
     chain.add_edge(1, 2);
     chain.add_edge(2, 3);
@@ -144,7 +133,7 @@ static void run_tests() {
     assert(r.distance == 0);
     assert((r.path == std::vector<int>{2}));
 
-    // --- Chain graph: unique route, length = number of edges -----------
+    // chain graph, one route through it
     r = bfs_shortest_path(chain, 1, 4);
     assert(r.distance == 3);
     assert((r.path == std::vector<int>{1, 2, 3, 4}));
@@ -153,7 +142,7 @@ static void run_tests() {
     assert(r.distance == 2);
     assert((r.path == std::vector<int>{3, 2, 1}));
 
-    // --- Disconnected component: reachable node, unreachable target -----
+    // two components, can't cross over
     Graph two_components;
     two_components.add_edge(1, 2);
     two_components.add_edge(3, 4);
@@ -167,7 +156,7 @@ static void run_tests() {
     assert(r.distance == -1);
     assert(r.path.empty());
 
-    // --- Diamond graph: two equal shortest routes -----------------------
+    // diamond, two equal routes
     Graph diamond;
     diamond.add_edge(0, 1);
     diamond.add_edge(0, 2);
@@ -175,7 +164,7 @@ static void run_tests() {
     diamond.add_edge(2, 3);
     diamond.add_edge(3, 4);  // tail beyond the diamond
     r = bfs_shortest_path(diamond, 0, 3);
-    assert(r.distance == 2);  // either 0-1-3 or 0-2-3, never longer
+    assert(r.distance == 2);  // either way is 2 hops
     assert(r.path.size() == 3);
     assert(r.path.front() == 0 && r.path.back() == 3);
     assert(is_valid_path(diamond, r.path, 0, 3));
@@ -183,10 +172,10 @@ static void run_tests() {
     assert(r.distance == 3);
     assert(is_valid_path(diamond, r.path, 0, 4));
     r = bfs_shortest_path(diamond, 3, 0);
-    assert(r.distance == 2);  // undirected: 3-1-0 (or 3-2-0) in two hops
+    assert(r.distance == 2);  // two hops going back
     assert(is_valid_path(diamond, r.path, 3, 0));
 
-    // --- BFS prefers the short road over a long detour ------------------
+    // short hop beats the long way round
     Graph detour;
     detour.add_edge(0, 3);  // direct hop
     detour.add_edge(0, 1);
@@ -196,7 +185,7 @@ static void run_tests() {
     assert(r.distance == 1);
     assert((r.path == std::vector<int>{0, 3}));
 
-    // --- Directed graph: edges only traverse forward --------------------
+    // directed edges only go one way
     Graph directed(true);
     directed.add_edge(5, 6);
     directed.add_edge(6, 7);
@@ -207,7 +196,7 @@ static void run_tests() {
     assert(r.distance == -1);
     assert(r.path.empty());
 
-    // --- Node not in the graph ------------------------------------------
+    // node not in the graph
     Graph small;
     small.add_edge(10, 20);
     r = bfs_shortest_path(small, 10, 99);   // unknown target
@@ -223,26 +212,25 @@ static void run_tests() {
     assert(r.distance == -1);
     assert(r.path.empty());
 
-    // --- Empty graph -----------------------------------------------------
+    // empty graph
     Graph empty_graph;
     r = bfs_shortest_path(empty_graph, 0, 0);
     assert(r.distance == -1);
     assert(r.path.empty());
 
-    // --- Negative node ids work too --------------------------------------
+    // negative ids
     Graph signed_nodes;
     signed_nodes.add_edge(-4, -1);
     signed_nodes.add_edge(-1, 2);
     r = bfs_shortest_path(signed_nodes, -4, 2);
     assert(r.distance == 2);
     assert((r.path == std::vector<int>{-4, -1, 2}));
-    // Using -1 as the source exercises root marking with a negative id.
+    // -1 works fine as a source too
     r = bfs_shortest_path(signed_nodes, -1, -4);
     assert(r.distance == 1);
     assert((r.path == std::vector<int>{-1, -4}));
 }
 
-// Prints one labeled query line for the demo.
 void print_query(const Graph& g, int src, int dst) {
     const BfsResult r = bfs_shortest_path(g, src, dst);
     std::cout << src << " -> " << dst << ": distance=" << r.distance
@@ -257,7 +245,7 @@ int main() {
     run_tests();
     std::cout << "All BFS tests passed.\n\n";
 
-    // Deterministic demo: diamond graph plus an isolated component.
+    // demo: diamond plus an island
     Graph demo;
     demo.add_edge(0, 1);
     demo.add_edge(0, 2);
