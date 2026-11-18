@@ -1,14 +1,5 @@
-// splay_tree.cpp
-// Splay tree: a self-adjusting BST where every search/insert/delete splashes
-// ("splays") the accessed node to the root using zig, zig-zig and zig-zag
-// rotations. No height/balance metadata is stored; the amortised cost of each
-// operation is O(log n).
-// Duplicate policy: inserting an existing key splays it to the root and
-// returns false (the key set is unchanged).
-//
-// Time complexity: O(log n) amortised per operation (worst case O(n)),
-// O(n) for in-order traversal. Space: O(n), recursion depth O(n) worst case
-// but O(log n) amortised.
+// splay tree - every access splays the touched node up to the root
+// inserting an existing key just splays it and returns false
 
 #include <algorithm>
 #include <cassert>
@@ -31,27 +22,24 @@ public:
     SplayTree(const SplayTree&) = delete;
     SplayTree& operator=(const SplayTree&) = delete;
 
-    // Splays the node holding `key` (or the last node reached) to the root.
-    // Zig:     rotate at the root.
-    // Zig-zig: child and parent both on the same side -> rotate twice.
-    // Zig-zag: child and parent on opposite sides -> rotate twice, crossed.
+    // splays key (or the last node reached) to the root
+    // zig at the root, zig-zig same side twice, zig-zag crossed
     Node* splay(Node* t, int key) const {
         if (t == nullptr) return nullptr;
         if (key < t->key) {
             if (t->left == nullptr) return t;   // key absent, stop here
             t->left = splay(t->left, key);
-            return rotateRight(t);              // zig / zig-zig / zig-zag
+            return rotateRight(t);
         }
         if (key > t->key) {
             if (t->right == nullptr) return t;
             t->right = splay(t->right, key);
             return rotateLeft(t);
         }
-        return t;  // found: already the sub-root
+        return t;  // found
     }
 
-    // Returns true if inserted; false if the key already existed (in which
-    // case the existing node ends up at the root).
+    // false if the key existed (its node ends up at the root)
     bool insert(int key) {
         if (root_ == nullptr) {
             root_ = new Node(key);
@@ -74,14 +62,13 @@ public:
         return true;
     }
 
-    // Searches for `key`; on success the node is at the root.
+    // on success the found node is at the root
     bool search(int key) {
         root_ = splay(root_, key);
         return root_ != nullptr && root_->key == key;
     }
 
-    // Removes `key` if present; the successor structure is re-rooted by
-    // splaying the maximum of the left subtree.
+    // removes key if present, re-rooting on the left subtree's max
     bool remove(int key) {
         if (root_ == nullptr) return false;
         root_ = splay(root_, key);
@@ -93,9 +80,7 @@ public:
         if (left == nullptr) {
             root_ = right;
         } else {
-            // Splay the largest key of the left subtree to its top; every key
-            // there is smaller than `key`, so searching for `key` lands on the
-            // maximum.
+            // everything left of key is smaller, so the splay lands on the max
             left = splay(left, key);
             left->right = right;
             root_ = left;
@@ -113,7 +98,7 @@ public:
     bool empty() const { return root_ == nullptr; }
     Node* root() const { return root_; }
 
-    // Recursively checks the BST key ordering; returns the node count.
+    // bst order check, returns node count
     static int check_bst(const Node* n, long lo, long hi) {
         if (n == nullptr) return 0;
         assert(lo < n->key && n->key < hi);
@@ -157,15 +142,14 @@ private:
     }
 };
 
-// ---------------------------------------------------------------------------
 int main() {
-    // Helper: full invariant check (BST order + in-order == expected set).
+    // bst order + in-order matches expected
     auto check = [](SplayTree& t, const std::vector<int>& expected) {
         SplayTree::check_bst(t.root(), LONG_MIN, LONG_MAX);
         assert(t.in_order() == expected);
     };
 
-    // --- Inserts keep the in-order sequence sorted --------------------------
+    // inserts stay sorted in-order
     {
         SplayTree t;
         std::vector<int> keys = {50, 30, 70, 20, 40, 60, 80, 45};
@@ -179,7 +163,7 @@ int main() {
         std::cout << "inserts: in-order sorted, BST property holds\n";
     }
 
-    // --- Every successful search ends with the node at the root -------------
+    // successful search ends with node at root
     {
         SplayTree t;
         for (int k : {50, 30, 70, 20, 40, 60, 80}) assert(t.insert(k));
@@ -189,8 +173,7 @@ int main() {
             assert(t.root()->key == k);  // splayed to root
             check(t, sorted);
         }
-        // Failed searches also splay some node to the root without changing
-        // the key set.
+        // failed search still splays something, key set unchanged
         for (int k : {-5, 25, 55, 100}) {
             assert(!t.search(k));
             check(t, sorted);
@@ -198,19 +181,19 @@ int main() {
         std::cout << "search: accessed node always at root\n";
     }
 
-    // --- Duplicate insert policy --------------------------------------------
+    // duplicate insert policy
     {
         SplayTree t;
         assert(t.insert(10));
         assert(t.insert(5));
         assert(t.insert(15));
         assert(!t.insert(10));            // duplicate rejected
-        assert(t.root()->key == 10);      // ...and splayed to the root
+        assert(t.root()->key == 10);      // now at root
         check(t, {5, 10, 15});
         std::cout << "duplicates: rejected, existing node at root\n";
     }
 
-    // --- Delete of root and of a non-root node ------------------------------
+    // delete root / leaf / internal
     {
         SplayTree t;
         std::vector<int> keys = {40, 20, 60, 10, 30, 50, 70};
@@ -218,31 +201,31 @@ int main() {
         std::sort(present.begin(), present.end());
         for (int k : keys) assert(t.insert(k));
 
-        // Delete the root: search splays 40 to the root, then it is removed.
+        // search splays 40 up first, then it gets removed
         assert(t.search(40));
         assert(t.remove(40));
         present.erase(std::find(present.begin(), present.end(), 40));
         check(t, present);
         assert(!t.search(40));
 
-        // Delete a leaf-ish node (10).
+        // leaf-ish node
         assert(t.remove(10));
         present.erase(std::find(present.begin(), present.end(), 10));
         check(t, present);
 
-        // Delete an internal node with two children (60).
+        // internal node, two children
         assert(t.remove(60));
         present.erase(std::find(present.begin(), present.end(), 60));
         check(t, present);
 
-        // Deleting a missing key fails and keeps the tree intact.
+        // missing key: fail, tree unchanged
         assert(!t.remove(999));
         check(t, present);
 
         std::cout << "delete: root / leaf / internal node OK\n";
     }
 
-    // --- Delete root repeatedly until empty ---------------------------------
+    // keep deleting the root until empty
     {
         SplayTree t;
         std::vector<int> keys = {30, 10, 20, 40, 50};
@@ -260,16 +243,16 @@ int main() {
         std::cout << "drain by root-delete: tree empties and recovers\n";
     }
 
-    // --- Repeated-access sequence (path compression behaviour) --------------
+    // repeated access (path compression behaviour)
     {
         SplayTree t;
         for (int k = 1; k <= 31; ++k) assert(t.insert(k));
-        // Access the same key repeatedly: it stays at the root.
+        // same key over and over: stays at root
         for (int i = 0; i < 5; ++i) {
             assert(t.search(16));
             assert(t.root()->key == 16);
         }
-        // Alternate two hot keys: each search moves that key to the root.
+        // two hot keys take turns at the root
         for (int i = 0; i < 4; ++i) {
             assert(t.search(5));
             assert(t.root()->key == 5);
@@ -282,7 +265,7 @@ int main() {
         std::cout << "repeated access: hot keys stay/return at root\n";
     }
 
-    // --- Ascending inserts (worst case for a plain BST) ---------------------
+    // ascending inserts
     {
         SplayTree t;
         std::vector<int> expected;
