@@ -19,6 +19,8 @@ Any C++17 compiler works (g++, clang++, or MSVC). Every program runs its own tes
 - [splay_tree.cpp](splay-tree/splay_tree.cpp) — moves the node you just touched up to the root, so hot keys rise to the top
 - [b_tree.cpp](b-tree/b_tree.cpp) — each node holds several sorted keys and splits when full, the way databases store data on disk
 
+- [dijkstra.cpp](dijkstra/dijkstra.cpp) — finds the cheapest path from one node to every other when edges have different costs
+
 ## Run
 
 ```bash
