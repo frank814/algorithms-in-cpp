@@ -1,4 +1,3 @@
-// huffman_coding.cpp
 // huffman encode/decode built on a priority queue
 
 #include <cassert>
@@ -26,7 +25,7 @@ public:
             Node(char c, int f) : ch(c), freq(f), left(nullptr), right(nullptr) {}
         };
 
-        // ties broken with std::less, < on unrelated pointers is undefined
+        // ties broken with std::less, < on pointers is undefined
         using HeapItem = std::pair<int, Node*>;
         auto cmp = [](const HeapItem& a, const HeapItem& b) {
             if (a.first != b.first) return a.first > b.first;
@@ -93,7 +92,7 @@ public:
             for (char b : bits) assert(b == '0');
             return std::string(bits.size(), codes_.begin()->first);
         }
-        // walk the reverse code table, tree is already freed
+        // walk the reverse table, tree is already freed
         std::string out;
         std::string cur;
         std::map<std::string, char> rev;
@@ -148,7 +147,7 @@ int main() {
 
     // frequent chars get short codes
     {
-        // a=5 b=3 c=1, 'a' should end up with the shortest code
+        // a=5 b=3 c=1, a should get the shortest code
         Huffman h;
         std::string text = "aaaaabbbc";
         h.build(text);

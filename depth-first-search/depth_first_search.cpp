@@ -1,4 +1,3 @@
-// depth_first_search.cpp
 // dfs (recursive + iterative), tree traversals, directed cycle check
 
 #include <algorithm>
@@ -132,8 +131,7 @@ bool has_cycle_directed(const Graph& g) {
 int main() {
     // recursive vs iterative give the same order
     {
-        // fixed graph: 1 and 2 hang off 0, 3 hangs off 1 and 2, 5 off 3 and 4
-        // 5 is the sink
+        // 0 to 1,2; 1 to 3; 2 to 3,4; 3 and 4 to 5; 5 is the sink
         Graph g(6);
         g[0] = {1, 2};
         g[1] = {3};
@@ -196,17 +194,17 @@ int main() {
         assert((in == std::vector<int>{4, 2, 5, 1, 3, 6}));
         assert((post == std::vector<int>{4, 5, 2, 6, 3, 1}));
 
-        // sizes match, root first in pre and last in post
+        // root first in pre, last in post
         assert(pre.size() == in.size() && in.size() == post.size());
         assert(pre.front() == 1 && post.back() == 1 && post.front() == 4);
-        // all three should be permutations of the same nodes
+        // same nodes in all three orders
         std::vector<int> a = pre, b = in, c = post;
         std::sort(a.begin(), a.end());
         std::sort(b.begin(), b.end());
         std::sort(c.begin(), c.end());
         std::vector<int> nodes = {1, 2, 3, 4, 5, 6};
         assert(a == nodes && b == nodes && c == nodes);
-        // in-order runs leftmost node to rightmost node
+        // in-order starts at the leftmost node
         assert(in.front() == 4 && in.back() == 6);
 
         std::cout << "pre : 1 2 4 5 3 6\npost: 4 5 2 6 3 1\n";
