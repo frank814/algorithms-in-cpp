@@ -85,7 +85,7 @@ private:
         return x;
     }
 
-    // Left rotation (zag): mirror of rotateRight.
+    // left rotation (zag), mirror of rotateRight
     static Node* rotateLeft(Node* x) {
         Node* y = x->right;
         Node* B = y->left;
@@ -127,7 +127,7 @@ private:
         return added;
     }
 
-    // pulls the in-order successor out of the right subtree, returns its key
+    // pulls the successor out of the right subtree, returns its key
     static int takeSuccessor(Node*& n) {
         if (n->left == nullptr) {
             Node* doomed = n;
@@ -179,7 +179,7 @@ private:
 };
 
 int main() {
-    // check invariants and sorted order after each op
+    // check invariants after each op
     auto check = [](AVL& t, const std::vector<int>& expected) {
         AVL::verify(t.root(), LONG_MIN, LONG_MAX);
         assert(t.in_order() == expected);

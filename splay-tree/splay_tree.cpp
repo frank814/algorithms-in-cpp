@@ -68,7 +68,7 @@ public:
         return root_ != nullptr && root_->key == key;
     }
 
-    // removes key if present, re-rooting on the left subtree's max
+    // removes key if present, left subtree takes over
     bool remove(int key) {
         if (root_ == nullptr) return false;
         root_ = splay(root_, key);
@@ -80,7 +80,7 @@ public:
         if (left == nullptr) {
             root_ = right;
         } else {
-            // everything left of key is smaller, so the splay lands on the max
+            // everything left is smaller, splay lands on the max
             left = splay(left, key);
             left->right = right;
             root_ = left;
@@ -173,7 +173,7 @@ int main() {
             assert(t.root()->key == k);  // splayed to root
             check(t, sorted);
         }
-        // failed search still splays something, key set unchanged
+        // failed search still splays a node, keys unchanged
         for (int k : {-5, 25, 55, 100}) {
             assert(!t.search(k));
             check(t, sorted);
@@ -201,7 +201,7 @@ int main() {
         std::sort(present.begin(), present.end());
         for (int k : keys) assert(t.insert(k));
 
-        // search splays 40 up first, then it gets removed
+        // search splays 40 up first
         assert(t.search(40));
         assert(t.remove(40));
         present.erase(std::find(present.begin(), present.end(), 40));
@@ -243,7 +243,7 @@ int main() {
         std::cout << "drain by root-delete: tree empties and recovers\n";
     }
 
-    // repeated access (path compression behaviour)
+    // repeated access
     {
         SplayTree t;
         for (int k = 1; k <= 31; ++k) assert(t.insert(k));
