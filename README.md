@@ -6,23 +6,23 @@ Any C++17 compiler works (g++, clang++, or MSVC). Every program runs its own tes
 
 ## What's inside
 
-- [binary_search.cpp](01-binary-search/binary_search.cpp) — finds a target in a sorted list by halving the range on every step, plus lower/upper bound helpers
-- [selection_sort.cpp](02-selection-sort/selection_sort.cpp) — repeatedly picks the smallest remaining value and swaps it into place
-- [recursion.cpp](03-recursion/recursion.cpp) — factorial and fibonacci done recursively, with a memo table so each value is computed once
-- [quicksort.cpp](04-quicksort/quicksort.cpp) — sorts in place by partitioning around a median-of-three pivot
-- [hash_table.cpp](05-hash-table/hash_table.cpp) — key/value store with separate chaining, FNV-1a hashing, and automatic rehash
-- [bfs.cpp](06-breadth-first-search/bfs.cpp) — walks a graph level by layer to find the shortest path between two nodes
-- [binary_search_tree.cpp](07-binary-search-tree/binary_search_tree.cpp) — insert, search, and delete following one branch at a time
-- [depth_first_search.cpp](08-depth-first-search/depth_first_search.cpp) — dives deep down one branch first: graph DFS, tree traversals, cycle detection
-- [huffman_coding.cpp](09-huffman-coding/huffman_coding.cpp) — builds an optimal prefix code from character frequencies, encodes and decodes text
-- [avl_tree.cpp](10-avl-tree/avl_tree.cpp) — self-balancing search tree that rotates nodes back into shape after every change
-- [splay_tree.cpp](11-splay-tree/splay_tree.cpp) — moves the node you just touched up to the root, so hot keys rise to the top
-- [b_tree.cpp](12-b-tree/b_tree.cpp) — each node holds several sorted keys and splits when full, the way databases store data on disk
+- [binary_search.cpp](binary-search/binary_search.cpp) — finds a target in a sorted list by halving the range on every step, plus lower/upper bound helpers
+- [selection_sort.cpp](selection-sort/selection_sort.cpp) — repeatedly picks the smallest remaining value and swaps it into place
+- [recursion.cpp](recursion/recursion.cpp) — factorial and fibonacci done recursively, with a memo table so each value is computed once
+- [quicksort.cpp](quicksort/quicksort.cpp) — sorts in place by partitioning around a median-of-three pivot
+- [hash_table.cpp](hash-table/hash_table.cpp) — key/value store with separate chaining, FNV-1a hashing, and automatic rehash
+- [bfs.cpp](breadth-first-search/bfs.cpp) — walks a graph level by layer to find the shortest path between two nodes
+- [binary_search_tree.cpp](binary-search-tree/binary_search_tree.cpp) — insert, search, and delete following one branch at a time
+- [depth_first_search.cpp](depth-first-search/depth_first_search.cpp) — dives deep down one branch first: graph DFS, tree traversals, cycle detection
+- [huffman_coding.cpp](huffman-coding/huffman_coding.cpp) — builds an optimal prefix code from character frequencies, encodes and decodes text
+- [avl_tree.cpp](avl-tree/avl_tree.cpp) — self-balancing search tree that rotates nodes back into shape after every change
+- [splay_tree.cpp](splay-tree/splay_tree.cpp) — moves the node you just touched up to the root, so hot keys rise to the top
+- [b_tree.cpp](b-tree/b_tree.cpp) — each node holds several sorted keys and splits when full, the way databases store data on disk
 
 ## Run
 
 ```bash
-g++ -std=c++17 -O2 -o run 01-binary-search/binary_search.cpp && ./run
+g++ -std=c++17 -O2 -o run binary-search/binary_search.cpp && ./run
 ```
 
 Any other file works the same way. To run all of them:
