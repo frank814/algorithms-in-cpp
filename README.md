@@ -21,6 +21,8 @@ Any C++17 compiler works (g++, clang++, or MSVC). Every program runs its own tes
 
 - [dijkstra.cpp](dijkstra/dijkstra.cpp) — finds the cheapest path from one node to every other when edges have different costs
 
+- [greedy_scheduling.cpp](greedy-scheduling/greedy_scheduling.cpp) — picks the largest set of activities that never overlap, finishing soonest first
+
 ## Run
 
 ```bash
