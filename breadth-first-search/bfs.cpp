@@ -77,7 +77,7 @@ BfsResult bfs_shortest_path(const Graph& g, int src, int dst) {
         return result;  // no route to dst
     }
 
-    // walk parents back to src, then flip into src-first order
+    // walk parents back to src, then reverse
     int cur = dst;
     result.path.push_back(cur);
     while (cur != src) {
@@ -138,7 +138,7 @@ static void run_tests() {
     assert(r.distance == 3);
     assert((r.path == std::vector<int>{1, 2, 3, 4}));
     assert(is_valid_path(chain, r.path, 1, 4));
-    r = bfs_shortest_path(chain, 3, 1);  // undirected, so it works backwards
+    r = bfs_shortest_path(chain, 3, 1);  // undirected, works backwards
     assert(r.distance == 2);
     assert((r.path == std::vector<int>{3, 2, 1}));
 

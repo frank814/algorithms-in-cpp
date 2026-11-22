@@ -85,7 +85,7 @@ public:
         if (load_factor() > kMaxLoadFactor) {
             rehash(buckets_.size() * 2);
         }
-        // rehash above may have moved it, look again
+        // rehash may have moved it, look again
         return find_entry_mut(key)->value;
     }
 
@@ -109,7 +109,7 @@ public:
         return static_cast<double>(size_) / static_cast<double>(buckets_.size());
     }
 
-    // exposed so the collision test can find keys that land in one bucket
+    // exposed for the collision test
     std::size_t bucket_index(const K& key) const { return index_of(key); }
 
 private:
@@ -264,7 +264,7 @@ static void run_tests() {
     const int n = 500;
     for (int i = 0; i < n; ++i) {
         big.insert(i, i * 3 + 1);
-        assert(big.load_factor() <= 0.75);  // load stays under 0.75
+        assert(big.load_factor() <= 0.75);
     }
     assert(big.size() == static_cast<std::size_t>(n));
     assert(big.bucket_count() > 4);  // rehashing must have happened
