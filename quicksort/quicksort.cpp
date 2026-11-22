@@ -48,7 +48,7 @@ int median_of_three(const std::vector<int>& v, int lo, int hi) {
     return b;  // c <= b <= a
 }
 
-// hoare partition: returns j with v[lo..j] <= pivot <= v[j+1..hi], both sides shrink
+// hoare partition: returns j with v[lo..j] <= pivot <= v[j+1..hi]
 int partition(std::vector<int>& v, int lo, int hi, int pivot) {
     int i = lo - 1;
     int j = hi + 1;
@@ -126,7 +126,7 @@ static void run_tests() {
     // negatives + duplicates
     check_against_reference({0, -1, 4, -1, -99, 4, 4, 12, -99, 7});
 
-    // 200 shuffled arrays, sizes across the cutoff
+    // 200 shuffled arrays around the cutoff
     std::mt19937 rng(42);
     std::uniform_int_distribution<int> size_dist(0, 400);
     std::uniform_int_distribution<int> val_dist(-1000, 1000);

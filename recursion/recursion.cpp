@@ -39,7 +39,7 @@ std::uint64_t fib_iter(unsigned n) {
     return prev;
 }
 
-// memo table; cache[i]==0 means not computed, F(0) gets seeded manually
+// memo table; 0 means not computed, F(0) seeded manually
 std::uint64_t fib_memo(unsigned n, std::vector<std::uint64_t>& cache) {
     if (n < cache.size() && cache[n] != 0) {
         return cache[n];
@@ -64,7 +64,7 @@ std::uint64_t fib_memo(unsigned n) {
     return fib_memo(n, cache);
 }
 
-// indented call/return trace of factorial(n)
+// prints an indented trace of factorial(n)
 static std::uint64_t trace_factorial_impl(unsigned n, unsigned depth) {
     const std::string indent(depth * 2, ' ');
     std::cout << indent << "call  factorial(" << n << ")\n";
