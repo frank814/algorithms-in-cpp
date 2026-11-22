@@ -60,7 +60,7 @@ public:
     bool empty() const { return root_ == nullptr; }
     Node* root() const { return root_; }
 
-    // key order, node sizes, children count, uniform leaf depth (returned)
+    // key order, node sizes, children count, uniform leaf depth
     int verify(const Node* x, int depth, int& leaf_depth,
                long lo, long hi) const {
         const int n = static_cast<int>(x->keys.size());

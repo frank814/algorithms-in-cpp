@@ -60,7 +60,7 @@ public:
                 succ = succ->left;
             }
             cur->key = succ->key;
-            // successor has at most one child now, unlink it below
+            // successor has at most one child, unlink below
             parent = succParent;
             cur = succ;
         }
@@ -216,7 +216,7 @@ int main() {
         assert(t.in_order().empty());
         assert(!t.search(1));
         assert(!t.remove(1));
-        // min/max assert non-empty, skip them here
+        // min/max need a non-empty tree, skip them here
         std::cout << "empty tree: guarded ops OK\n";
     }
 
