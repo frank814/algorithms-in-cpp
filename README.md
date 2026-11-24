@@ -23,6 +23,8 @@ Any C++17 compiler works (g++, clang++, or MSVC). Every program runs its own tes
 
 - [greedy_scheduling.cpp](greedy-scheduling/greedy_scheduling.cpp) — picks the largest set of activities that never overlap, finishing soonest first
 
+- [greedy_knapsack.cpp](greedy-knapsack/greedy_knapsack.cpp) — fills a knapsack with the best value per unit weight first, splitting the last item if needed
+
 ## Run
 
 ```bash
