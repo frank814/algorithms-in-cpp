@@ -1,4 +1,4 @@
-// bfs on an adjacency list graph, shortest path when every edge costs 1
+// bfs on an adjacency list, shortest path when every edge costs 1
 // missing or unreachable endpoints give distance -1
 
 #include <cassert>

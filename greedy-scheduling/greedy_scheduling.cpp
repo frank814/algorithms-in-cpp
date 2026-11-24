@@ -18,7 +18,7 @@ struct Activity {
     }
 };
 
-// returns picked indices in original order; [start, finish) intervals
+// returns picked indices in input order
 std::vector<int> select_activities(const std::vector<Activity>& activities) {
     const int n = static_cast<int>(activities.size());
     std::vector<int> order(n);
@@ -82,7 +82,7 @@ int main() {
     picks = select_activities(single);
     assert((picks == std::vector<int>({0})));
 
-    // tie break: index 1 wins (earlier start), the other two overlap it
+    // index 1 wins, the other two overlap it
     std::vector<Activity> ties = {{4, 8}, {3, 8}, {3, 8}};
     picks = select_activities(ties);
     assert((picks == std::vector<int>({1})));
