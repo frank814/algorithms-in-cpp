@@ -4,6 +4,8 @@ Algorithms and data structures implemented from scratch in C++17. No libraries, 
 
 Any C++17 compiler works (g++, clang++, or MSVC). Every program runs its own tests in `main()` with assertions and prints a pass line when everything holds.
 
+MIT licensed.
+
 ## What's inside
 
 - [binary_search.cpp](binary-search/binary_search.cpp) — finds a target in a sorted list by halving the range on every step, plus lower/upper bound helpers
