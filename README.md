@@ -27,6 +27,8 @@ MIT licensed.
 
 - [greedy_knapsack.cpp](greedy-knapsack/greedy_knapsack.cpp) — fills a knapsack with the best value per unit weight first, splitting the last item if needed
 
+- [set_cover.cpp](set-cover/set_cover.cpp) — greedily picks the set covering the most uncovered elements each round
+
 ## Run
 
 ```bash
