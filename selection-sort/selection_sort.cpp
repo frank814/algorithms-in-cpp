@@ -78,14 +78,14 @@ static void run_tests() {
     }
     check_against_reference(random);
 
-    // another size, same rng stream
+    // different size, same rng
     std::vector<int> random2(37);
     for (int& x : random2) {
         x = dist(rng);
     }
     check_against_reference(random2);
 
-    // sortedness check on the result
+    // check the output is sorted
     selection_sort(random2);
     assert(is_sorted_non_decreasing(random2));
 }

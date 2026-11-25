@@ -1,10 +1,10 @@
-// binary search practice - a few variants + tests
+// binary search, a few variants + tests
 
 #include <cassert>
 #include <iostream>
 #include <vector>
 
-// returns an index of target, or -1 if not found
+// index of target, or -1 if not found
 int binary_search_iter(const std::vector<int>& v, int target) {
     int lo = 0;
     int hi = static_cast<int>(v.size()) - 1;
