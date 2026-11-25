@@ -50,7 +50,7 @@ public:
     explicit HashTable(std::size_t bucket_count = 8)
         : buckets_(bucket_count == 0 ? 1 : bucket_count) {}
 
-    // returns false if the key was already there, value gets replaced
+    // false if the key was there, value gets replaced
     bool insert(const K& key, const V& value) {
         if (contains(key)) {
             Entry& entry = find_entry(key);
@@ -228,7 +228,7 @@ static void run_tests() {
     assert(nums.get(-7) == std::nullopt);
     assert(nums.size() == 2);
 
-    // force 5 keys into bucket 0; load stays under 0.75 so no rehash
+    // force 5 keys into bucket 0, no rehash
     HashTable<int, int> collision(8);
     assert(collision.bucket_count() == 8);
     std::vector<int> colliding;

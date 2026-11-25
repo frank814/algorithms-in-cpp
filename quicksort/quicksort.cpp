@@ -1,4 +1,4 @@
-// quicksort, median-of-three pivot, insertion sort for small ranges + tests
+// quicksort, median-of-three pivot, insertion sort on small ranges
 
 #include <algorithm>
 #include <cassert>
