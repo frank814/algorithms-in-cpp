@@ -49,7 +49,7 @@ public:
 
     static int heightOf(const Node* n) { return n == nullptr ? -1 : n->height; }
 
-    // checks bst order, balance and stored heights, returns height
+    // checks order, balance, stored heights, returns height
     static int verify(const Node* n, long lo, long hi) {
         if (n == nullptr) return -1;
         assert(lo < n->key && n->key < hi);
@@ -127,7 +127,7 @@ private:
         return added;
     }
 
-    // pulls the successor out of the right subtree, returns its key
+    // pulls the successor out of the right subtree
     static int takeSuccessor(Node*& n) {
         if (n->left == nullptr) {
             Node* doomed = n;

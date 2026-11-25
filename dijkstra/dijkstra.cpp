@@ -1,5 +1,5 @@
 // dijkstra single-source shortest paths, binary heap
-// needs non-negative weights; unreachable vertices end up with dist -1
+// needs non-negative weights; unreachable gets dist -1
 
 #include <algorithm>
 #include <cassert>
